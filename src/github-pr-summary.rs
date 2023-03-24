@@ -2,6 +2,10 @@ use github_flows::{
     get_octo, listen_to_event, octocrab::models::events::payload::PullRequestEventAction,
     EventPayload,
 };
+use http_req::{
+    request::{Method, Request},
+    uri::Uri,
+};
 use openai_flows::{chat_completion, ChatModel, ChatOptions};
 use slack_flows::send_message_to_channel;
 use tokio::*;
@@ -20,7 +24,6 @@ pub async fn run() -> anyhow::Result<()> {
 }
 
 async fn handler(owner: &str, repo: &str, payload: EventPayload) {
-    let octocrab = get_octo(Some(String::from(owner)));
     let mut pull = None;
 
     match payload {
@@ -51,28 +54,35 @@ async fn handler(owner: &str, repo: &str, payload: EventPayload) {
     );
     send_message_to_channel("ik8", "general", diff_url.to_string());
 
-    let response = octocrab._get(diff_url, None::<&()>).await;
-    match response {
-        Err(_) => {}
-        Ok(res) => {
-            let diff_as_text = res.text().await.unwrap();
-            let prompt = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message, please summarize into key points by order of importance: {diff_as_text}");
-            send_message_to_channel("ik8", "general", prompt.to_string());
+    let uri = Uri::try_from(diff_url.as_str()).unwrap();
 
-            let co = ChatOptions {
-                model: ChatModel::GPT35Turbo,
-                restart: true,
-                restarted_sentence: Some(&prompt),
-            };
+    let mut writer = Vec::new();
 
-            if let Some(r) = chat_completion(
-                openai_key_name,
-                &format!("PR#{}", pull_number),
-                &prompt,
-                &co,
-            ) {
-                send_message_to_channel("ik8", "general", r.choice);
-            }
-        }
+    let _ = Request::new(&uri)
+        .method(Method::GET)
+        .header("Accept", "application/vnd.github+json")
+        .header("User-Agent", "Github Connector of Second State Reactor")
+        .send(&mut writer)
+        .map_err(|_e| {})
+        .unwrap();
+
+    let diff_as_text = String::from_utf8_lossy(&writer);
+
+    let prompt = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message, please summarize into key points by order of importance: {diff_as_text}");
+    send_message_to_channel("ik8", "general", prompt.to_string());
+
+    let co = ChatOptions {
+        model: ChatModel::GPT35Turbo,
+        restart: true,
+        restarted_sentence: Some(&prompt),
     };
+
+    if let Some(r) = chat_completion(
+        openai_key_name,
+        &format!("PR#{}", pull_number),
+        &prompt,
+        &co,
+    ) {
+        send_message_to_channel("ik8", "general", r.choice);
+    }
 }
