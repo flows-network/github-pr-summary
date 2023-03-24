@@ -138,7 +138,7 @@ pub fn serial_prompts(inp_vec: Vec<String>, prompt_start: String) -> Vec<String>
     let mut prompt_vec = Vec::new();
     let mut inp_vec = inp_vec.clone();
     let diff_as_text = inp_vec.pop().unwrap();
-    let first_prompt = format!("{prompt_start}, please summarize into key points by order of importance, this long file is to be sent in batches, please repond by saying [receiving incoming data] before the last input, here is number 1 : {diff_as_text}");
+    let first_prompt = format!("{prompt_start}, please summarize into key points by order of importance, this long file is to be sent in batches, please respond by saying only [receiving incoming data], nothing else, before the last input, here is number 1 : {diff_as_text}");
     prompt_vec.push(first_prompt.clone());
 
     match inp_vec.len() {
@@ -154,7 +154,7 @@ pub fn serial_prompts(inp_vec: Vec<String>, prompt_start: String) -> Vec<String>
             let mut serial_number = 2;
             let mut last = String::new();
             while let Some(diff_as_text) = inp_vec.last() {
-                let mid_prompt = format!("please repond by saying [receiving incoming data] before the last input, here is number {serial_number} : {diff_as_text}");
+                let mid_prompt = format!("please respond by saying only [receiving incoming data], nothing else, before the last input, here is number {serial_number} : {diff_as_text}");
 
                 prompt_vec.push(mid_prompt);
                 serial_number += 1;
