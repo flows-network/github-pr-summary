@@ -48,9 +48,10 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
     };
 
     // diff_url: https://patch-diff.githubusercontent.com/raw/jaykchen/vitesse-lite/pull/45.diff
-    let diff_url = format!(
-        "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
-    );
+    let diff_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2369.diff";
+    // let diff_url = format!(
+    //     "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
+    // );
 
     let uri = Uri::try_from(diff_url.as_str()).unwrap();
 
