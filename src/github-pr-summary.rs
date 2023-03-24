@@ -1,6 +1,5 @@
 use github_flows::{
-    get_octo, listen_to_event, octocrab::models::events::payload::PullRequestEventAction,
-    EventPayload,
+    listen_to_event, octocrab::models::events::payload::PullRequestEventAction, EventPayload,
 };
 use http_req::{
     request::{Method, Request},
@@ -9,6 +8,7 @@ use http_req::{
 use openai_flows::{chat_completion, ChatModel, ChatOptions};
 use slack_flows::send_message_to_channel;
 use tokio::*;
+
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
 pub async fn run() -> anyhow::Result<()> {
@@ -52,7 +52,6 @@ async fn handler(owner: &str, repo: &str, payload: EventPayload) {
     let diff_url = format!(
         "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
     );
-    send_message_to_channel("ik8", "general", diff_url.to_string());
 
     let uri = Uri::try_from(diff_url.as_str()).unwrap();
 
@@ -69,7 +68,6 @@ async fn handler(owner: &str, repo: &str, payload: EventPayload) {
     let diff_as_text = String::from_utf8_lossy(&writer);
 
     let prompt = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message, please summarize into key points by order of importance: {diff_as_text}");
-    send_message_to_channel("ik8", "general", prompt.to_string());
 
     let co = ChatOptions {
         model: ChatModel::GPT35Turbo,
