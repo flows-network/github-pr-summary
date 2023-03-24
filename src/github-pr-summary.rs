@@ -49,6 +49,7 @@ async fn handler(owner: &str, repo: &str, payload: EventPayload) {
     let diff_url = format!(
         "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
     );
+    send_message_to_channel("ik8", "general", diff_url.to_string());
 
     let response = octocrab._get(diff_url, None::<&()>).await;
     match response {
@@ -56,6 +57,7 @@ async fn handler(owner: &str, repo: &str, payload: EventPayload) {
         Ok(res) => {
             let diff_as_text = res.text().await.unwrap();
             let prompt = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message, please summarize into key points by order of importance: {diff_as_text}");
+            send_message_to_channel("ik8", "general", prompt.to_string());
 
             let co = ChatOptions {
                 model: ChatModel::GPT35Turbo,
