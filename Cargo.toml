@@ -19,3 +19,4 @@ lazy_static = "1.4.0"
 regex = "1.7.1"
 openai-flows = "0.2.2"
 http_req_wasi = { version = "0.10.2", features = ["wasmedge_ssl"] }
+words-count = "0.1.4"
