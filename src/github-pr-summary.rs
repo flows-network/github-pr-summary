@@ -49,11 +49,11 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         None => return,
     };
 
-    // let diff_url =
-    //     "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2366.diff".to_string();
-    let diff_url = format!(
-        "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
-    );
+    let diff_url =
+        "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2369.diff".to_string();
+    // let diff_url = format!(
+    //     "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
+    // );
 
     let prompt = format!("@chatgptbot, read {diff_url}, which is the code diff document for a pull request on GitHub, please summarize it into key points");
     // let prompt_start = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message");
