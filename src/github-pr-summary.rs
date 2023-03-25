@@ -91,7 +91,8 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
     } else {
         let chunked = chunk_input(diff_as_text.to_string());
         let mut prompt_arr = serial_prompts(chunked, prompt_start);
-        let mut count_down = prompt_arr.len();
+        let count = prompt_arr.len();
+        let mut count_down = count.clone();
         while let Some(prompt) = prompt_arr.pop() {
             let co = ChatOptions {
                 model: ChatModel::GPT35Turbo,
@@ -105,12 +106,17 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
                 &prompt,
                 &co,
             ) {
-                if count_down > 0 {
-                    send_message_to_channel("ik8", "general", "please wait...".to_string());
-                    count_down-=1;
-                } else {
+                if count_down == count {
+                    send_message_to_channel(
+                        "ik8",
+                        "general",
+                        "please wait..., it could take minutes to summarize a large pull request"
+                            .to_string(),
+                    );
+                } else if count_down == 1 {
                     send_message_to_channel("ik8", "general", r.choice);
                 }
+                count_down -= 1;
             }
         }
     }
