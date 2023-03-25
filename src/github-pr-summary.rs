@@ -136,7 +136,7 @@ pub fn serial_prompts(inp_vec: Vec<String>) -> Vec<String> {
 
     let start_prompt = format!("I have a long GitHub pull request diff document in plain text and will process it in smaller chunks. Process chunk 1 and provide a short summary: {start_text}");
     let last_prompt = format!("Please process this chunk and provide a short summary: {last_text}");
-    let end_prompt = "Now that all chunks have been processed, please provide the final processed result, i.e. concise points by order of importance".to_string();
+    let end_prompt = format!("Finally, these chunks just proccessed are the core data of a pull request on GitHub, {prompt_start}, please summarize the pull request into key points by order of importance");
 
     match deq.len() {
         0 => {
