@@ -68,10 +68,11 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         .unwrap();
 
     let diff_as_text = String::from_utf8_lossy(&writer);
+    send_message_to_channel("ik8", "general", diff_as_text.to_string());
+
     let prompt_start = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message");
 
     if diff_as_text.lines().count() < 210 {
-        send_message_to_channel("ik8", "general", diff_as_text.to_string());
         let prompt = format!("{prompt_start}, please summarize into key points by order of importance: {diff_as_text}");
 
         let co = ChatOptions {
@@ -90,8 +91,8 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         }
     } else {
         let chunked = chunk_input(diff_as_text.to_string());
-        let mut text_vec = serial_prompts(chunked);
-        while let Some(prompt) = text_vec.pop() {
+        let mut prompt_arr = serial_prompts(chunked);
+        while let Some(prompt) = prompt_arr.pop() {
             let co = ChatOptions {
                 model: ChatModel::GPT35Turbo,
                 restart: true,
@@ -127,7 +128,7 @@ pub fn chunk_input(inp: String) -> Vec<String> {
 pub fn serial_prompts(inp_vec: Vec<String>) -> Vec<String> {
     use std::collections::VecDeque;
     let mut prompt_vec = Vec::new();
-    let mut deq = inp_vec.clone().into_iter().collect::<VecDeque<String>>();
+    let mut deq = inp_vec.into_iter().collect::<VecDeque<String>>();
 
     let start_text = deq.pop_front().unwrap();
 
@@ -156,7 +157,7 @@ pub fn serial_prompts(inp_vec: Vec<String>) -> Vec<String> {
             return prompt_vec;
         }
         _ => {
-            return vec![];
+            unreachable!()
         }
     };
 }
