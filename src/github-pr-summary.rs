@@ -68,7 +68,6 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         .unwrap();
 
     let diff_as_text = String::from_utf8_lossy(&writer);
-    send_message_to_channel("ik8", "general", diff_as_text.to_string());
 
     let prompt_start = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message");
 
@@ -135,7 +134,7 @@ pub fn serial_prompts(inp_vec: Vec<String>, prompt_start: String) -> Vec<String>
     let last_text = deq.pop_back().unwrap();
 
     let start_prompt = format!("I have a long GitHub pull request diff document in plain text and will process it in smaller chunks. Process chunk 1 and provide a short summary: {start_text}");
-    let last_prompt = format!("Please process this chunk and provide a short summary: {last_text}");
+    let last_prompt = format!("This is part of the code diff file of a GitHub pull request, please process this chunk and provide a short summary: {last_text}");
     let end_prompt = format!("Finally, these chunks just proccessed are the core data of a pull request on GitHub, {prompt_start}, please summarize the pull request into key points by order of importance");
 
     match deq.len() {
