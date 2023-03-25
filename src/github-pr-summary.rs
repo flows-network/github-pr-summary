@@ -50,7 +50,7 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
     };
 
     let diff_url =
-        "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2369.diff".to_string();
+        "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.diff".to_string();
     // let diff_url = format!(
     //     "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
     // );
