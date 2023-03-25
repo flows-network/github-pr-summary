@@ -91,7 +91,7 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         }
     } else {
         let chunked = chunk_input(diff_as_text.to_string());
-        let mut prompt_arr = serial_prompts(chunked);
+        let mut prompt_arr = serial_prompts(chunked, prompt_start);
         while let Some(prompt) = prompt_arr.pop() {
             let co = ChatOptions {
                 model: ChatModel::GPT35Turbo,
@@ -125,7 +125,7 @@ pub fn chunk_input(inp: String) -> Vec<String> {
     res
 }
 
-pub fn serial_prompts(inp_vec: Vec<String>) -> Vec<String> {
+pub fn serial_prompts(inp_vec: Vec<String>, prompt_start: String) -> Vec<String> {
     use std::collections::VecDeque;
     let mut prompt_vec = Vec::new();
     let mut deq = inp_vec.into_iter().collect::<VecDeque<String>>();
