@@ -1,3 +1,4 @@
+use flowsnet_platform_sdk::write_error_log;
 use github_flows::{
     listen_to_event, octocrab::models::events::payload::PullRequestEventAction, EventPayload,
 };
@@ -8,15 +9,16 @@ use http_req::{
 use openai_flows::{chat_completion, ChatModel, ChatOptions};
 use slack_flows::send_message_to_channel;
 use tokio::*;
-use words_count::count;
+
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
 pub async fn run() -> anyhow::Result<()> {
+    let login = "jaykchen";
     let owner = "jaykchen";
     let repo = "vitesse-lite";
     let openai_key_name = "jaykchen";
 
-    listen_to_event(owner, repo, vec!["pull_request"], |payload| {
+    listen_to_event(login, owner, repo, vec!["pull_request"], |payload| {
         handler(owner, repo, openai_key_name, payload)
     })
     .await;
@@ -47,7 +49,6 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         None => return,
     };
 
-    // diff_url: https://patch-diff.githubusercontent.com/raw/jaykchen/vitesse-lite/pull/45.diff
     // let diff_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2366.diff".to_string();
     let diff_url = format!(
         "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
@@ -66,109 +67,95 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         .unwrap();
 
     let diff_as_text = String::from_utf8_lossy(&writer);
-
     let prompt_start = format!("Contributor {contributor} filed the pull request titled {title}, proposing changes as shown in plain text diff record at the end of this message");
 
-    match maybe_split_long_input(&diff_as_text) {
-        None => {
-            let prompt = format!("{prompt_start}, please summarize into key points by order of importance: {diff_as_text}");
+    if diff_as_text.lines().count() < 210 {
+        send_message_to_channel("ik8", "general", diff_as_text.to_string());
+        let prompt = format!("{prompt_start}, please summarize into key points by order of importance: {diff_as_text}");
 
-            let co = ChatOptions {
-                model: ChatModel::GPT35Turbo,
-                restart: true,
-                restarted_sentence: Some(&prompt),
-            };
+        let co = ChatOptions {
+            model: ChatModel::GPT35Turbo,
+            restart: true,
+            restarted_sentence: Some(&prompt),
+        };
 
-            if let Some(r) = chat_completion(
-                openai_key_name,
-                &format!("PR#{}", pull_number),
-                &prompt,
-                &co,
-            ) {
-                send_message_to_channel("ik8", "general", r.choice);
-            }
+        if let Some(r) = chat_completion(
+            openai_key_name,
+            &format!("PR#{}", pull_number),
+            &prompt,
+            &co,
+        ) {
+            send_message_to_channel("ik8", "general", r.choice);
         }
-        Some(multiple_segments) => {
-            let mut text_vec = serial_prompts(multiple_segments, prompt_start);
-            while let Some(prompt) = text_vec.pop() {
-                let co = ChatOptions {
-                    model: ChatModel::GPT35Turbo,
-                    restart: true,
-                    restarted_sentence: Some(&prompt),
-                };
-
-                if let Some(r) = chat_completion(
-                    openai_key_name,
-                    &format!("PR#{}", pull_number),
-                    &prompt,
-                    &co,
-                ) {
-                    send_message_to_channel("ik8", "general", r.choice);
-                }
-            }
-        }
-    };
-}
-
-pub fn maybe_split_long_input(inp: &str) -> Option<Vec<String>> {
-    let words_count = count(inp);
-
-    if words_count.words > 2000 && words_count.characters > 8000 {
-        let mut diff_pcs = String::new();
-
-        let mut diff_str_vec = Vec::new();
-
-        for chunk in inp.split_inclusive("diff --git") {
-            let temp = diff_pcs.clone();
-
-            diff_pcs.push_str(chunk);
-
-            if diff_pcs.len() > 8000 {
-                diff_str_vec.push(temp);
-                diff_pcs.clear();
-                diff_pcs.push_str(chunk);
-            }
-        }
-        return Some(diff_str_vec);
     }
-    None
+
+    let chunked = chunk_input(diff_as_text.to_string());
+    let mut text_vec = serial_prompts(chunked);
+    while let Some(prompt) = text_vec.pop() {
+        let co = ChatOptions {
+            model: ChatModel::GPT35Turbo,
+            restart: true,
+            restarted_sentence: Some(&prompt),
+        };
+
+        if let Some(r) = chat_completion(
+            openai_key_name,
+            &format!("PR#{}", pull_number),
+            &prompt,
+            &co,
+        ) {
+            // write_error_log!(prompt);
+            send_message_to_channel("ik8", "general", r.choice);
+        }
+    }
 }
 
-pub fn serial_prompts(inp_vec: Vec<String>, prompt_start: String) -> Vec<String> {
-    let mut prompt_vec = Vec::new();
-    let mut inp_vec = inp_vec.clone();
-    let diff_as_text = inp_vec.pop().unwrap();
-    let first_prompt = format!("{prompt_start}, please summarize into key points by order of importance, this long file is to be sent in batches, please respond by saying only [receiving data], nothing else, before the last input, here is number 1 : {diff_as_text}");
-    prompt_vec.push(first_prompt.clone());
+pub fn chunk_input(inp: String) -> Vec<String> {
+    let mut res = Vec::<String>::new();
 
-    match inp_vec.len() {
-        1 => {
-            let diff_as_text = inp_vec[0].clone();
-            let end_prompt = format!(
-                "Please give me the summary, here is last part of the input : {diff_as_text}"
-            );
-            prompt_vec.push(end_prompt.clone());
-            prompt_vec
+    let mut chunks = inp.split_inclusive("diff --git").collect::<Vec<&str>>();
+    chunks.remove(0); // Remove the first empty element
+
+    for chunk in chunks {
+        let chunk = chunk.lines().take(210).collect::<Vec<&str>>().join("\n");
+        res.push(chunk);
+    }
+    res
+}
+
+pub fn serial_prompts(inp_vec: Vec<String>) -> Vec<String> {
+    use std::collections::VecDeque;
+    let mut prompt_vec = Vec::new();
+    let mut deq = inp_vec.clone().into_iter().collect::<VecDeque<String>>();
+
+    let start_text = deq.pop_front().unwrap();
+
+    let last_text = deq.pop_back().unwrap();
+
+    let start_prompt = format!("I have a long GitHub pull request diff document in plain text and will process it in smaller chunks. Process chunk 1 and provide a short summary: {start_text}");
+    let last_prompt = format!("Please process this chunk and provide a short summary: {last_text}");
+    let end_prompt = "Now that all chunks have been processed, please provide the final processed result, i.e. concise points by order of importance".to_string();
+
+    match deq.len() {
+        0 => {
+            let middle_prompt = last_prompt.clone();
+
+            return vec![end_prompt, middle_prompt, start_prompt];
         }
-        2.. => {
-            let mut serial_number = 2;
-            let mut last = String::new();
-            while let Some(diff_as_text) = inp_vec.last() {
-                let mid_prompt = format!("please respond by saying only [receiving data], nothing else, before the last input, here is number {serial_number} : {diff_as_text}");
+        1.. => {
+            while let Some(diff_as_text) = deq.pop_back() {
+                let mid_prompt = format!(
+                    "Please process this chunk and provide a short summary: {diff_as_text}"
+                );
 
                 prompt_vec.push(mid_prompt);
-                serial_number += 1;
-                last = inp_vec.pop().unwrap();
             }
-            let diff_as_text = last;
-            let end_prompt = format!(
-                "Please give me the summary, here is last part of the input : {diff_as_text}"
-            );
-            prompt_vec.push(end_prompt);
-            prompt_vec
+            prompt_vec.insert(0, end_prompt);
+            prompt_vec.push(start_prompt);
+            return prompt_vec;
         }
         _ => {
-            vec![]
+            return vec![];
         }
-    }
+    };
 }
