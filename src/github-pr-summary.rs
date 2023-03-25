@@ -49,7 +49,8 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         None => return,
     };
 
-    let diff_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2366.diff".to_string();
+    let diff_url =
+        "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2366.diff".to_string();
     // let diff_url = format!(
     //     "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.diff"
     // );
@@ -87,25 +88,25 @@ async fn handler(owner: &str, repo: &str, openai_key_name: &str, payload: EventP
         ) {
             send_message_to_channel("ik8", "general", r.choice);
         }
-    }
+    } else {
+        let chunked = chunk_input(diff_as_text.to_string());
+        let mut text_vec = serial_prompts(chunked);
+        while let Some(prompt) = text_vec.pop() {
+            let co = ChatOptions {
+                model: ChatModel::GPT35Turbo,
+                restart: true,
+                restarted_sentence: Some(&prompt),
+            };
 
-    let chunked = chunk_input(diff_as_text.to_string());
-    let mut text_vec = serial_prompts(chunked);
-    while let Some(prompt) = text_vec.pop() {
-        let co = ChatOptions {
-            model: ChatModel::GPT35Turbo,
-            restart: true,
-            restarted_sentence: Some(&prompt),
-        };
-
-        if let Some(r) = chat_completion(
-            openai_key_name,
-            &format!("PR#{}", pull_number),
-            &prompt,
-            &co,
-        ) {
-            // write_error_log!(prompt);
-            send_message_to_channel("ik8", "general", r.choice);
+            if let Some(r) = chat_completion(
+                openai_key_name,
+                &format!("PR#{}", pull_number),
+                &prompt,
+                &co,
+            ) {
+                // write_error_log!(prompt);
+                send_message_to_channel("ik8", "general", r.choice);
+            }
         }
     }
 }
