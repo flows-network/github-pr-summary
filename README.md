@@ -1,2 +1,6 @@
 # Example
-to trigger rebuild
+
+
+```
+cargo build --target wasm32-wasi --release
+```
