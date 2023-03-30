@@ -98,8 +98,11 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit
-        current_commit.push_str(&line);
+        // Append the line to the current commit if the current commit is less than 3600 chars (the
+        // max token size is 4096)
+        if current_commit.len() < 3600 {
+            current_commit.push_str(&line);
+        }
         current_commit.push('\n');
     }
 
@@ -142,7 +145,8 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         let mut resp = String::new();
         resp.push_str(&r.choice);
         resp.push_str("\n\n# Details\n\n");
-        for (_i, review) in reviews.iter().enumerate() {
+        for (i, review) in reviews.iter().enumerate() {
+            resp.push_str(format!("**Commit {}:** ", i + 1));
             resp.push_str(&review);
             resp.push_str("\n\n");
         }
