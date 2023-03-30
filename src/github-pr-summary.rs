@@ -146,7 +146,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         resp.push_str(&r.choice);
         resp.push_str("\n\n# Details\n\n");
         for (i, review) in reviews.iter().enumerate() {
-            resp.push_str(format!("**Commit {}:** ", i + 1));
+            resp.push_str(&format!("**Commit {}:** ", i + 1));
             resp.push_str(&review);
             resp.push_str("\n\n");
         }
