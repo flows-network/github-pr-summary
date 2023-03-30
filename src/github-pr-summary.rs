@@ -45,7 +45,7 @@ pub async fn run() -> anyhow::Result<()> {
 
 async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, payload: EventPayload) {
     let octo = get_octo(Some(String::from(login)));
-    let pulls = octo.pulls(owner, repo);
+    let issues = octo.issues(owner, repo);
     let mut pull = None;
 
     match payload {
@@ -67,6 +67,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         ),
         None => return,
     };
+    let chat_id = &format!("PR#{}", pull_number);
 
     let patch_url =
         "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch".to_string();
@@ -102,57 +103,50 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         current_commit.push('\n');
     }
 
+    if commits.len() < 1 {
+        write_error_log!("Cannot parse any commit from the patch file");
+        return;
+    }
+
+    // Ask the initial prompt
+    let prompt = "In this thread, you will act as a reviewer for GitHub Pull Requests. I will send you several GitHub patch files, each containing a patch for a single commit. Please summarize the key changes in each patch and identify potential problems. Once I sent all the patches, I will say 'That is it' and you will provide a summary of all patches in this conversation.";
+    // ChatOption for the initial prompt
+    let co = ChatOptions {
+        model: ChatModel::GPT35Turbo,
+        restart: true,
+        restarted_sentence: Some(prompt),
+    };
+    // Start the session with the prompt, and send in the first commit
+    write_error_log!(format!("Commit 1:\n{}", &commits[0]));
+    chat_completion(openai_key_name, chat_id, &commits[0], &co);
+
+
+    // ChatOption for all subsequent questions
+    let co = ChatOptions {
+        model: ChatModel::GPT35Turbo,
+        restart: false,
+        restarted_sentence: None,
+    };
     for (i, commit) in commits.iter().enumerate() {
+        // skip the first commit as it has been asked
+        if i == 0 { continue; }
         write_error_log!(format!("Commit {}:\n{}", i + 1, commit));
-        if i == 0 {
-            let prompt = format!("In this thread, you will act as a reviewer for GitHub Pull Requests. I will send you several GitHub patch files, each containing a patch for a single commit. Please summarize the key changes in each patch and identify potential problems. Once I sent all the patches, I will say 'That is it' and you will provide a summary of all patches in this conversation. Here is the first patch:\n{}", commit);
-            let co = ChatOptions {
-                model: ChatModel::GPT4,
-                restart: true,
-                restarted_sentence: Some(&prompt),
-            };
-            if let Some(r) = chat_completion(
-                openai_key_name,
-                &format!("PR#{}", pull_number),
-                &prompt,
-                &co,
-            ) {
-                reviews.push(r.choice);
-            }
-        } else {
-            let co = ChatOptions {
-                model: ChatModel::GPT4,
-                restart: false,
-                restarted_sentence: Some(""),
-            };
-            if let Some(r) = chat_completion(
-                openai_key_name,
-                &format!("PR#{}", pull_number),
-                &commit,
-                &co,
-            ) {
-                write_error_log!(r.choice);
-                reviews.push(r.choice);
-            }
+        if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
+            write_error_log!(r.choice);
+            reviews.push(r.choice);
         }
     }
 
-    let co = ChatOptions {
-        model: ChatModel::GPT4,
-        restart: false,
-        restarted_sentence: Some(""),
-    };
-    if let Some(r) = chat_completion(
-        openai_key_name,
-        &format!("PR#{}", pull_number),
-        "That is it",
-        &co,
-    ) {
-        pulls.update(pull_number).body(r.choice).send().await.unwrap();
+    // Conclude the session
+    if let Some(r) = chat_completion(openai_key_name, chat_id, "That is it", &co) {
+        let mut resp = String::new();
+        resp.push_str(&r.choice);
+        resp.push_str("\n\n# Details\n\n");
+        for (_i, review) in reviews.iter().enumerate() {
+            resp.push_str(&review);
+            resp.push_str("\n\n");
+        }
+        // Send the entire response to GitHub PR
+        issues.create_comment(pull_number, resp).await.unwrap();
     }
-            
-    for (_i, review) in reviews.iter().enumerate() {
-        write_error_log!(review);
-    }
-    
 }
