@@ -98,9 +98,9 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 3600 chars (the
+        // Append the line to the current commit if the current commit is less than 3000 chars (the
         // max token size is 4096)
-        if current_commit.len() < 3600 {
+        if current_commit.len() < 3000 {
             current_commit.push_str(&line);
         }
         current_commit.push('\n');
