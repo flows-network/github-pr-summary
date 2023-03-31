@@ -51,6 +51,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     match payload {
         EventPayload::PullRequestEvent(e) => {
             if e.action == PullRequestEventAction::Closed {
+                write_error_log!("Closed event");
                 return;
             }
             pull = Some(e.pull_request);
@@ -90,7 +91,6 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     let mut current_commit = String::new();
     for line in patch_as_text.lines() {
         if line.starts_with("From ") {
-            write_error_log!("Start a new commit");
             // Detected a new commit
             if !current_commit.is_empty() {
                 // Store the previous commit
@@ -118,7 +118,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     }
 
     // Ask the initial prompt
-    let prompt = "In this thread, you will act as a reviewer for GitHub Pull Requests. I will send you several GitHub patch files, each containing a patch for a single commit. Please summarize the key changes in each patch and identify potential problems. Once I sent all the patches, I will say 'That is it' and you will provide a summary of all patches in this conversation.";
+    let prompt = "You will act as a reviewer for GitHub Pull Requests. I will send you several GitHub patch files, each containing a patch for a single commit. Please summarize the key changes in each patch and identify potential problems. Once I sent all the patches, I will say 'That is it' and you will provide a summary of all patches in this conversation.";
     // ChatOption for the initial prompt
     let co = ChatOptions {
         model: ChatModel::GPT35Turbo,
@@ -127,7 +127,9 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     };
     // Start the session with the prompt, and send in the first commit
     // write_error_log!(format!("Commit 1:\n{}", &commits[0]));
-    chat_completion(openai_key_name, chat_id, &commits[0], &co);
+    if let Some(r) = chat_completion(openai_key_name, chat_id, &commits[0], &co) {
+        reviews.push(r.choice);
+    }
 
 
     // ChatOption for all subsequent questions
@@ -139,9 +141,9 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     for (i, commit) in commits.iter().enumerate() {
         // skip the first commit as it has been asked
         if i == 0 { continue; }
-        write_error_log!(format!("Commit {}:\n{}", i + 1, commit));
+        // write_error_log!(format!("Commit {}:\n{}", i + 1, commit));
         if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
-            write_error_log!(r.choice);
+            // write_error_log!(r.choice);
             reviews.push(r.choice);
         }
     }
