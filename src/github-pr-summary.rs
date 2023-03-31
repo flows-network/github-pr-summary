@@ -90,6 +90,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     let mut current_commit = String::new();
     for line in patch_as_text.lines() {
         if line.starts_with("From ") {
+            write_error_log!("Start a new commit");
             // Detected a new commit
             if !current_commit.is_empty() {
                 // Store the previous commit
@@ -102,9 +103,14 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         // max token size is 4096)
         if current_commit.len() < 3000 {
             current_commit.push_str(&line);
+            current_commit.push('\n');
         }
-        current_commit.push('\n');
     }
+    if !current_commit.is_empty() {
+        // Store the last commit
+        commits.push(current_commit.clone());
+    }
+    write_error_log!(format!("Num of commits = {}", commits.len()));
 
     if commits.len() < 1 {
         write_error_log!("Cannot parse any commit from the patch file");
@@ -120,7 +126,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         restarted_sentence: Some(prompt),
     };
     // Start the session with the prompt, and send in the first commit
-    write_error_log!(format!("Commit 1:\n{}", &commits[0]));
+    // write_error_log!(format!("Commit 1:\n{}", &commits[0]));
     chat_completion(openai_key_name, chat_id, &commits[0], &co);
 
 
