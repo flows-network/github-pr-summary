@@ -135,6 +135,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     }
 
     let mut resp = String::new();
+    resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
         let prompt = "In the next messge, I will provide a set of reviews for code patches. Each review starts with a ------ line. Please write a summary of all the reviews";
         let co = ChatOptions {
@@ -145,7 +146,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         if let Some(r) = chat_completion(openai_key_name, chat_id, &reviews_text, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
-            resp.push_str("\n\n# Details\n\n");
+            resp.push_str("\n\n## Details\n\n");
         }
     }
     for (i, review) in reviews.iter().enumerate() {
