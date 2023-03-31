@@ -98,9 +98,9 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 5000 chars (the
+        // Append the line to the current commit if the current commit is less than 8000 chars (the
         // max token size is 4096)
-        if current_commit.len() < 5000 {
+        if current_commit.len() < 8000 {
             current_commit.push_str(&line);
             current_commit.push('\n');
         }
@@ -126,6 +126,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             restarted_sentence: Some(prompt),
         };
         if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
+            write_error_log!("Got a patch summary");
             reviews_text.push_str("------\n");
             reviews_text.push_str(&r.choice);
             reviews_text.push('\n');
@@ -142,12 +143,13 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             restarted_sentence: Some(prompt),
         };
         if let Some(r) = chat_completion(openai_key_name, chat_id, &reviews_text, &co) {
+            write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n# Details\n\n");
         }
     }
     for (i, review) in reviews.iter().enumerate() {
-        resp.push_str(&format!("**Commit {}:** ", i + 1));
+        resp.push_str(&format!("### Commit {}\n", i + 1));
         resp.push_str(&review);
         resp.push_str("\n\n");
     }
