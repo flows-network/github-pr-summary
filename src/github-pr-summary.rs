@@ -110,7 +110,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         // Store the last commit
         commits.push(current_commit.clone());
     }
-    write_error_log!(format!("Num of commits = {}", commits.len()));
+    // write_error_log!(&format!("Num of commits = {}", commits.len()));
 
     if commits.len() < 1 {
         write_error_log!("Cannot parse any commit from the patch file");
@@ -126,7 +126,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         restarted_sentence: Some(prompt),
     };
     // Start the session with the prompt, and send in the first commit
-    // write_error_log!(format!("Commit 1:\n{}", &commits[0]));
+    write_error_log!(&format!("Processing commit 1 with length {}", commits[0].len()));
     if let Some(r) = chat_completion(openai_key_name, chat_id, &commits[0], &co) {
         reviews.push(r.choice);
     }
@@ -141,9 +141,8 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     for (i, commit) in commits.iter().enumerate() {
         // skip the first commit as it has been asked
         if i == 0 { continue; }
-        // write_error_log!(format!("Commit {}:\n{}", i + 1, commit));
+        write_error_log!(&format!("Processing commit {} with length {}", i + 1, commit.len()));
         if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
-            // write_error_log!(r.choice);
             reviews.push(r.choice);
         }
     }
