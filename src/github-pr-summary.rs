@@ -86,9 +86,8 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         .unwrap();
     let patch_as_text = String::from_utf8_lossy(&writer);
     
-    let mut commits: Vec<String> = Vec::new();
-    let mut reviews: Vec<String> = Vec::new();
     let mut current_commit = String::new();
+    let mut commits: Vec<String> = Vec::new();
     for line in patch_as_text.lines() {
         if line.starts_with("From ") {
             // Detected a new commit
@@ -99,9 +98,9 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 3000 chars (the
+        // Append the line to the current commit if the current commit is less than 5000 chars (the
         // max token size is 4096)
-        if current_commit.len() < 3000 {
+        if current_commit.len() < 5000 {
             current_commit.push_str(&line);
             current_commit.push('\n');
         }
@@ -117,47 +116,41 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         return;
     }
 
-    // Ask the initial prompt
-    let prompt = "You will act as a reviewer for GitHub Pull Requests. I will send you several GitHub patch files, each containing a patch for a single commit. Please summarize the key changes in each patch and identify potential problems. Once I sent all the patches, I will say 'That is it' and you will provide a summary of all patches in this conversation.";
-    // ChatOption for the initial prompt
-    let co = ChatOptions {
-        model: ChatModel::GPT35Turbo,
-        restart: true,
-        restarted_sentence: Some(prompt),
-    };
-    // Start the session with the prompt, and send in the first commit
-    write_error_log!(&format!("Processing commit 1 with length {}", commits[0].len()));
-    if let Some(r) = chat_completion(openai_key_name, chat_id, &commits[0], &co) {
-        reviews.push(r.choice);
-    }
-
-
-    // ChatOption for all subsequent questions
-    let co = ChatOptions {
-        model: ChatModel::GPT35Turbo,
-        restart: false,
-        restarted_sentence: None,
-    };
-    for (i, commit) in commits.iter().enumerate() {
-        // skip the first commit as it has been asked
-        if i == 0 { continue; }
-        write_error_log!(&format!("Processing commit {} with length {}", i + 1, commit.len()));
+    let mut reviews: Vec<String> = Vec::new();
+    let mut reviews_text = String::new();
+    for (_i, commit) in commits.iter().enumerate() {
+        let prompt = "You will act as a reviewer for GitHub Pull Requests. The next message is a GitHub patch for a single commit. Please summarize the key changes and identify potential problems.";
+        let co = ChatOptions {
+            model: ChatModel::GPT35Turbo,
+            restart: true,
+            restarted_sentence: Some(prompt),
+        };
         if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
+            reviews_text.push_str("------\n");
+            reviews_text.push_str(&r.choice);
+            reviews_text.push('\n');
             reviews.push(r.choice);
         }
     }
 
-    // Conclude the session
-    if let Some(r) = chat_completion(openai_key_name, chat_id, "That is it", &co) {
-        let mut resp = String::new();
-        resp.push_str(&r.choice);
-        resp.push_str("\n\n# Details\n\n");
-        for (i, review) in reviews.iter().enumerate() {
-            resp.push_str(&format!("**Commit {}:** ", i + 1));
-            resp.push_str(&review);
-            resp.push_str("\n\n");
+    let mut resp = String::new();
+    if reviews.len() > 1 {
+        let prompt = "In the next messge, I will provide a set of reviews for code patches. Each review starts with a ------ line. Please write a summary of all the reviews";
+        let co = ChatOptions {
+            model: ChatModel::GPT35Turbo,
+            restart: true,
+            restarted_sentence: Some(prompt),
+        };
+        if let Some(r) = chat_completion(openai_key_name, chat_id, &reviews_text, &co) {
+            resp.push_str(&r.choice);
+            resp.push_str("\n\n# Details\n\n");
         }
-        // Send the entire response to GitHub PR
-        issues.create_comment(pull_number, resp).await.unwrap();
     }
+    for (i, review) in reviews.iter().enumerate() {
+        resp.push_str(&format!("**Commit {}:** ", i + 1));
+        resp.push_str(&review);
+        resp.push_str("\n\n");
+    }
+    // Send the entire response to GitHub PR
+    issues.create_comment(pull_number, resp).await.unwrap();
 }
