@@ -1,13 +1,15 @@
+use dotenv::dotenv;
 use flowsnet_platform_sdk::write_error_log;
 use github_flows::{
-     get_octo, listen_to_event, octocrab::models::events::payload::PullRequestEventAction, EventPayload,
+    get_octo, listen_to_event,
+    octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
+    EventPayload,
 };
 use http_req::{
     request::{Method, Request},
     uri::Uri,
 };
 use openai_flows::{chat_completion, ChatModel, ChatOptions};
-use dotenv::dotenv;
 use std::env;
 
 #[no_mangle]
@@ -15,27 +17,13 @@ use std::env;
 pub async fn run() -> anyhow::Result<()> {
     dotenv().ok();
 
-    let login: String = match env::var("login") {
-        Err(_) => "juntao".to_string(),
-        Ok(name) => name,
-    };
+    let login = env::var("login").unwrap_or("juntao".to_string());
+    let owner = env::var("owner").unwrap_or("juntao".to_string());
+    let repo = env::var("repo").unwrap_or("test".to_string());
+    let openai_key_name = env::var("openai_key_name").unwrap_or("chatmichael".to_string());
 
-    let owner: String = match env::var("owner") {
-        Err(_) => "juntao".to_string(),
-        Ok(name) => name,
-    };
-
-    let repo: String = match env::var("repo") {
-        Err(_) => "test".to_string(),
-        Ok(name) => name,
-    };
-
-    let openai_key_name: String = match env::var("openai_key_name") {
-        Err(_) => "chatmichael".to_string(),
-        Ok(name) => name,
-    };
-
-    listen_to_event(&login, &owner, &repo, vec!["pull_request"], |payload| {
+    let events = vec!["pull_request", "issue_comment"];
+    listen_to_event(&login, &owner, &repo, events, |payload| {
         handler(&login, &owner, &repo, &openai_key_name, payload)
     })
     .await;
@@ -43,38 +31,65 @@ pub async fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, payload: EventPayload) {
-    let octo = get_octo(Some(String::from(login)));
-    let issues = octo.issues(owner, repo);
-    let mut pull = None;
-
-    match payload {
+async fn handler(
+    login: &str,
+    owner: &str,
+    repo: &str,
+    openai_key_name: &str,
+    payload: EventPayload,
+) {
+    let (_title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
             if e.action == PullRequestEventAction::Closed {
-                write_error_log!("Closed event");
+                write_error_log!("Closed pull event");
                 return;
             }
-            pull = Some(e.pull_request);
+            let p = e.pull_request;
+            (
+                p.title.unwrap_or("".to_string()),
+                p.number,
+                p.user.unwrap().login,
+            )
         }
+        EventPayload::IssueCommentEvent(e) => {
+            if e.action == IssueCommentEventAction::Deleted {
+                write_error_log!("Deleted issue event");
+                return;
+            }
 
-        _ => (),
+            let body = e.comment.body.unwrap_or_default();
+
+            // if e.comment.performed_via_github_app.is_some() {
+            //     return;
+            // }
+            // XXX: Makeshift but operational
+            if body.starts_with("Hello, I am a [serverless review bot]") {
+                write_error_log!("Comment via bot");
+                return;
+            };
+
+            if !body.contains("@flows.network") || !body.contains("summary again") {
+                write_error_log!(format!("Ignore the comment, raw: {}", body));
+                return;
+            }
+
+            let iss = e.issue;
+            (iss.title, iss.number, iss.user.login)
+        }
+        _ => return,
     };
 
-    let (_title, pull_number, _contributor) = match pull {
-        Some(p) => (
-            p.title.unwrap_or("".to_string()),
-            p.number,
-            p.user.unwrap().login,
-        ),
-        None => return,
-    };
-    let chat_id = &format!("PR#{}", pull_number);
+    let octo = get_octo(Some(String::from(login)));
+    let issues = octo.issues(owner, repo);
 
-    let patch_url =
-        "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch".to_string();
-    // let patch_url = format!(
-    //     "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.patch"
-    // );
+    let chat_id = format!("PR#{pull_number}");
+
+    // let patch_url =
+    //     "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch"
+    //         .to_string();
+    let patch_url = format!(
+        "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.patch"
+    );
     let patch_uri = Uri::try_from(patch_url.as_str()).unwrap();
     let mut writer = Vec::new();
     let _ = Request::new(&patch_uri)
@@ -85,7 +100,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         .map_err(|_e| {})
         .unwrap();
     let patch_as_text = String::from_utf8_lossy(&writer);
-    
+
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
     for line in patch_as_text.lines() {
@@ -101,7 +116,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
         // Append the line to the current commit if the current commit is less than 8000 chars (the
         // max token size is 4096)
         if current_commit.len() < 8000 {
-            current_commit.push_str(&line);
+            current_commit.push_str(line);
             current_commit.push('\n');
         }
     }
@@ -111,7 +126,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     }
     // write_error_log!(&format!("Num of commits = {}", commits.len()));
 
-    if commits.len() < 1 {
+    if commits.is_empty() {
         write_error_log!("Cannot parse any commit from the patch file");
         return;
     }
@@ -125,7 +140,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             restart: true,
             restarted_sentence: Some(prompt),
         };
-        if let Some(r) = chat_completion(openai_key_name, chat_id, &commit, &co) {
+        if let Some(r) = chat_completion(openai_key_name, &chat_id, commit, &co) {
             write_error_log!("Got a patch summary");
             reviews_text.push_str("------\n");
             reviews_text.push_str(&r.choice);
@@ -143,7 +158,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
             restart: true,
             restarted_sentence: Some(prompt),
         };
-        if let Some(r) = chat_completion(openai_key_name, chat_id, &reviews_text, &co) {
+        if let Some(r) = chat_completion(openai_key_name, &chat_id, &reviews_text, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
@@ -151,7 +166,7 @@ async fn handler(login: &str, owner: &str, repo: &str, openai_key_name: &str, pa
     }
     for (i, review) in reviews.iter().enumerate() {
         resp.push_str(&format!("### Commit {}\n", i + 1));
-        resp.push_str(&review);
+        resp.push_str(review);
         resp.push_str("\n\n");
     }
     // Send the entire response to GitHub PR
