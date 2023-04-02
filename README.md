@@ -1,4 +1,4 @@
-# <p align="center">Github Pull Request review & summary 🤖 using ChatGPT/4</p>
+# <p align="center">GitHub Pull Request review & summary 🤖 using ChatGPT/4</p>
 
 <p align="center">
   <a href="https://discord.gg/ccZn9ZMfFf">
@@ -12,67 +12,65 @@
   </a>
 </p>
 
-[Deploy this function on flows.network](#deploy-the-pr-summary-app-on-your-github-repo), and you will get a GitHub bot that uses ChatGPT to summary a GitHub Pull Requests automatically. It helps maintainers understand what does this PR do!
-
-See a demo [here](https://github.com/juntao/test/pull/21/)
+[Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub bot to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! See [a demo here](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1493216830)
 
 ## How it works
 
-This function will be triggered when a contributor submitted a pull request to the GitHub Repo where you deploy this app and when you mention the keywords you set up in the PR's comment zone.
+This flow function will be triggered and executed when a new PR is raised in a designated GitHub repo. It can also be triggered again when someone says a "trigger phrase" or "magic phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment.
 
+The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
 
-## Prerequisite 
+## Prerequisites
 
 You will need an [OpenAI API key](https://openai.com/blog/openai-api). If you do not already have one, [sign up here](https://platform.openai.com/signup).
 
-## Deploy the PR summary app on your GitHub repo
+You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
-To install the PR summary GitHub App, we will use [flows.network](https://flows.network/), a serverless platform that makes deploying your own app quick and easy in just three steps.
+## Deploy the PR summary app for your GitHub repo
+
+The app is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automations.
 
 ### Fork this repo
 
-Fork [this repo](https://github.com/flows-network/github-pr-summary/) and go to flows.network to deploy your function. 
+Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
 
 ### Deploy the code on flow.network
 
-1. Sign up for an account for deploying flows on [flows.network](https://flows.network/). It's free.
-2. Click on the "Create a Flow" button to start deploying the PR Summary APP
-3. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. 
+Go to [flows.network](https://flows.network/) to deploy your own flow function from the forked source code.
+
+1. Click on the "Create a Flow" button to start.
+2. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. 
 <img width="950" alt="image" src="https://user-images.githubusercontent.com/45785633/229329081-93728947-ad9f-44fb-85b1-067e6a0eb8ac.png">
 
-4. Click on the Advanced text and you will see more settings. we can fill in the required Environment Variables here. In this example, we have four variables. 
-* One is `login`: Fill in your personel github id here. The github app will act as you when respond to questions. 
-* The second one is `owner`: Fill in the GitHub org Name you want to connect here. 
-* The thrid one is `repo` : Fill in the GitHub repo Name under the GitHub org you just entered. 
-* The last one is `openai_key_name`: **Fill in the name you want to name your OpenAI Key**.
-* The last one is `trigger_phrase`: Fill in the keywords to trigger this function again.
+3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
+* `login`: Fill in your personal github id here. The github app will act as you when posting review comments. 
+* `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
+* `repo` : Fill in the GitHub repo you want to deploy the bot on.
+* `openai_key_name`: **Fill in any name you wish for your OpenAI API key**. We will connect this name to the actual key later.
+* `trigger_phrase`: Fill in the magic phrase to trigger a review in an existing PR.
 
 <img width="886" alt="image" src="https://user-images.githubusercontent.com/45785633/229329142-b7d77e53-4f3a-4d87-9136-4216191b18fc.png">
 
-5. At last, click the Deploy button to deploy your function.
+4. At last, click on the Deploy button.
 
-### Configure SaaS integrations
+### Configure integrations
 
-After that, the flows.network will direct you to configure the SaaS integration required by your flow.
+After that, the flows.network will direct you to configure the external services required by your flow.
 
 <img width="927" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">
 
+For this flow function, we need to configue two integrations.
 
-Here we can see, we need to configue two SaaS integrations.
-
-1. Click on the "Connect/+ Add new authentication" button to authenticate your OpenAI account. You'll be redirected to a new page where you could copy and paste your OpenAI API key and then name the key. **Note that the name you enter here should be the same as the name in the environment variables.**
+1. Click on the "Connect" or "+ Add new authentication" buttons to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.**
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
-2. Click the "Connect/+ Add new authentication" button to authenticate your GitHub account. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to install the `flows-network-integration` bot on a repo where you want to deploy this app. This repo is the one you entered into the environment variables above.
+2. Click the "Connect" or "+ Add new authentication" buttons to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission on the repo.
 
-After that, click the Check button to see your flow details. As soon as the flow function's status becomes `ready` and the flow's status became `running`, the PR summary GitHub App goes live. Go ahead and let ChatGPT help you understand the PRs.
+After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to take new PRs or comments in existing PRs.
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
 
-> [flows.network](https://flows.network/) is still in its early stages. We would love to hear your feedback!
-
-
 ## Credits
 
-This repo is originally contributed by Jay Chen.
+This flow function is originally created by [Jay Chen](https://github.com/jaykchen).
