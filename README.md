@@ -32,11 +32,11 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 The app is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automations.
 
-### Fork this repo
+### 1 Fork this repo
 
 Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
 
-### Deploy the code on flow.network
+### 2 Deploy the code on flow.network
 
 Go to [flows.network](https://flows.network/) to deploy your own flow function from the forked source code.
 
@@ -55,7 +55,7 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 
 4. At last, click on the Deploy button.
 
-### Configure integrations
+### 3 Configure integrations
 
 After that, the flows.network will direct you to configure the external services required by your flow.
 
