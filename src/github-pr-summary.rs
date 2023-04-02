@@ -70,7 +70,7 @@ async fn handler(
                 return;
             };
 
-            if !body.to_lowercase().contains(trigger_phrase.to_lowercase()) {
+            if !body.to_lowercase().contains(&trigger_phrase.to_lowercase()) {
                 write_error_log!(format!("Ignore the comment, raw: {}", body));
                 return;
             }
