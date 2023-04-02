@@ -21,10 +21,11 @@ pub async fn run() -> anyhow::Result<()> {
     let owner = env::var("owner").unwrap_or("juntao".to_string());
     let repo = env::var("repo").unwrap_or("test".to_string());
     let openai_key_name = env::var("openai_key_name").unwrap_or("chatmichael".to_string());
+    let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
 
     let events = vec!["pull_request", "issue_comment"];
     listen_to_event(&login, &owner, &repo, events, |payload| {
-        handler(&login, &owner, &repo, &openai_key_name, payload)
+        handler(&login, &owner, &repo, &openai_key_name, &trigger_phrase, payload)
     })
     .await;
 
@@ -36,6 +37,7 @@ async fn handler(
     owner: &str,
     repo: &str,
     openai_key_name: &str,
+    trigger_phrase: &str,
     payload: EventPayload,
 ) {
     let (_title, pull_number, _contributor) = match payload {
@@ -62,19 +64,18 @@ async fn handler(
             // if e.comment.performed_via_github_app.is_some() {
             //     return;
             // }
-            // XXX: Makeshift but operational
+            // TODO: Makeshift but operational
             if body.starts_with("Hello, I am a [serverless review bot]") {
-                write_error_log!("Comment via bot");
+                write_error_log!("Ignore comment via bot");
                 return;
             };
 
-            if !body.contains("@flows.network") || !body.contains("summary again") {
+            if !body.to_lowercase().contains(trigger_phrase.to_lowercase()) {
                 write_error_log!(format!("Ignore the comment, raw: {}", body));
                 return;
             }
 
-            let iss = e.issue;
-            (iss.title, iss.number, iss.user.login)
+            (e.issue.title, e.issue.number, e.issue.user.login)
         }
         _ => return,
     };
