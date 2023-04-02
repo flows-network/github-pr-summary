@@ -25,7 +25,14 @@ pub async fn run() -> anyhow::Result<()> {
 
     let events = vec!["pull_request", "issue_comment"];
     listen_to_event(&login, &owner, &repo, events, |payload| {
-        handler(&login, &owner, &repo, &openai_key_name, &trigger_phrase, payload)
+        handler(
+            &login,
+            &owner,
+            &repo,
+            &openai_key_name,
+            &trigger_phrase,
+            payload,
+        )
     })
     .await;
 
@@ -42,8 +49,8 @@ async fn handler(
 ) {
     let (_title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
-            if e.action == PullRequestEventAction::Closed {
-                write_error_log!("Closed pull event");
+            if e.action != PullRequestEventAction::Opened {
+                write_error_log!("Not a Opened pull event");
                 return;
             }
             let p = e.pull_request;
