@@ -85,12 +85,10 @@ async fn handler(
 
     let chat_id = format!("PR#{pull_number}");
 
-    let patch_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch".to_string();
-    /*
+    // let patch_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch".to_string();
     let patch_url = format!(
         "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.patch"
     );
-    */
     let patch_uri = Uri::try_from(patch_url.as_str()).unwrap();
     let mut writer = Vec::new();
     let _ = Request::new(&patch_uri)
