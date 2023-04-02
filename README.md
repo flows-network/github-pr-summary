@@ -75,4 +75,4 @@ After that, click on the "Check" button to go to the flow details page. As soon 
 
 ## Credits
 
-This flow function is originally created by [Jay Chen](https://github.com/jaykchen).
+This flow function is originally created by [Jay Chen](https://github.com/jaykchen), and [jinser](https://github.com/jetjinser) made significant contributions to optimize the event triggers from GitHub.
