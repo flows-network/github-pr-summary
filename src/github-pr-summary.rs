@@ -20,7 +20,7 @@ pub async fn run() -> anyhow::Result<()> {
     let login = env::var("login").unwrap_or("juntao".to_string());
     let owner = env::var("owner").unwrap_or("juntao".to_string());
     let repo = env::var("repo").unwrap_or("test".to_string());
-    let openai_key_name = env::var("openai_key_name").unwrap_or("chatmichael".to_string());
+    let openai_key_name = env::var("openai_key_name").unwrap_or("global.free.trial".to_string());
     let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
 
     let events = vec!["pull_request", "issue_comment"];
