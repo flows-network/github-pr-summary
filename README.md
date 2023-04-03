@@ -48,6 +48,9 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 <img width="950" alt="image" src="https://user-images.githubusercontent.com/45785633/229329081-93728947-ad9f-44fb-85b1-067e6a0eb8ac.png">
 
 3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
+
+> The 5 varisbles below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the environment variables setup below.
+
 * `login`: Fill in your personal github id here. The github app will act as you when posting review comments. 
 * `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
 * `repo` : Fill in the GitHub repo you want to deploy the bot on.
