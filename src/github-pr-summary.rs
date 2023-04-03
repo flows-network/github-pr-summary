@@ -119,9 +119,9 @@ async fn handler(
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 8000 chars (the
-        // max token size is 4096)
-        if current_commit.len() < 8000 {
+        // Append the line to the current commit if the current commit is less than 9000 chars (the
+        // max token size or word count is 4096)
+        if current_commit.len() < 9000 {
             current_commit.push_str(line);
             current_commit.push('\n');
         }
@@ -140,17 +140,20 @@ async fn handler(
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
-        let prompt = "You will act as a reviewer for GitHub Pull Requests. The next message is a GitHub patch for a single commit. Please summarize the key changes and identify potential problems.";
+        let system = "You are an experienced software developer. You will act as a reviewer for GitHub Pull Requests.";
         let co = ChatOptions {
             model: ChatModel::GPT35Turbo,
             restart: true,
-            restarted_sentence: Some(prompt),
+            system_prompt: Some(system),
         };
-        if let Some(r) = chat_completion(openai_key_name, &chat_id, commit, &co) {
+        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems.\n\n".to_string() + commit;
+        if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got a patch summary");
-            reviews_text.push_str("------\n");
-            reviews_text.push_str(&r.choice);
-            reviews_text.push('\n');
+            if reviews_text.len() < 9000 {
+                reviews_text.push_str("------\n");
+                reviews_text.push_str(&r.choice);
+                reviews_text.push('\n');
+            }
             reviews.push(r.choice);
         }
     }
@@ -158,13 +161,14 @@ async fn handler(
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
-        let prompt = "In the next messge, I will provide a set of reviews for code patches. Each review starts with a ------ line. Please write a summary of all the reviews";
+        let system = "You are a helpful assistant and an experienced software developer.";
         let co = ChatOptions {
             model: ChatModel::GPT35Turbo,
             restart: true,
-            restarted_sentence: Some(prompt),
+            system_prompt: Some(system),
         };
-        if let Some(r) = chat_completion(openai_key_name, &chat_id, &reviews_text, &co) {
+        let question = "Here is a set of reviews for software source code patches. Each review starts with a ------ line. Please write a summary of all the reviews.\n\n".to_string() + &reviews_text;
+        if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
