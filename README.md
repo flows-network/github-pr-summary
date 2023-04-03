@@ -15,7 +15,7 @@
 [Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub bot to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
 
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1493216830)
-* [[Shell] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1493413405)
+* [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1493413405)
 
 ## How it works
 
