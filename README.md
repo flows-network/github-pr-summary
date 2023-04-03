@@ -24,7 +24,7 @@ This flow function will be triggered and executed when a new PR is raised in a d
 
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
 
-> The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on flows.network.
+> The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
 ## Prerequisites
 
