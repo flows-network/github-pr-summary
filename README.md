@@ -55,7 +55,7 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 * `login`: Fill in your personal github id here. The github app will act as you when posting review comments. 
 * `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
 * `repo` : Fill in the GitHub repo you want to deploy the bot on.
-* `openai_key_name`: **Fill in any name you wish for your OpenAI API key**. We will connect this name to the actual key later.
+* `openai_key_name`: Optional: Fill in **any name** you wish for your OpenAI API key. If you omit, it defaults to `global.free.trial`. We will connect this name to the actual key later.
 * `trigger_phrase`: Fill in the magic phrase to trigger a review in an existing PR.
 
 <img width="886" alt="image" src="https://user-images.githubusercontent.com/45785633/229329142-b7d77e53-4f3a-4d87-9136-4216191b18fc.png">
@@ -70,7 +70,7 @@ After that, the flows.network will direct you to configure the external services
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" buttons to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.**
+1. Click on the "Connect" or "+ Add new authentication" buttons to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.** Or, you could request a free trial key under the default key name `global.free.trial`.
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
