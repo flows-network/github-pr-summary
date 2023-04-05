@@ -119,9 +119,10 @@ async fn handler(
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 9000 chars (the
-        // max token size or word count is 4096)
-        if current_commit.len() < 9000 {
+        // Append the line to the current commit if the current commit is less than 18000 chars 
+        //   the max token size or word count for GPT4 is 8192
+        //   the max token size or word count for GPT35Turbo is 4096
+        if current_commit.len() < 18000 {
             current_commit.push_str(line);
             current_commit.push('\n');
         }
@@ -150,7 +151,7 @@ async fn handler(
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got a patch summary");
-            if reviews_text.len() < 9000 {
+            if reviews_text.len() < 18000 {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
                 reviews_text.push('\n');
