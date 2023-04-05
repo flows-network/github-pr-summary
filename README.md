@@ -26,7 +26,7 @@ The GitHub repo is connected to the flow function via the [flows.network](https:
 
 > The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
-[![Watch a video demo](https://img.youtube.com/vi/V2LxcuA1cfo/default.jpg)](https://youtu.be/V2LxcuA1cfo)
+[![Watch a video demo](https://img.youtube.com/vi/V2LxcuA1cfo/mqdefault.jpg)](https://youtu.be/V2LxcuA1cfo)
 
 ## Prerequisites
 
