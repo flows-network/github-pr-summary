@@ -142,11 +142,12 @@ async fn handler(
     for (_i, commit) in commits.iter().enumerate() {
         let system = "You are an experienced software developer. You will act as a reviewer for GitHub Pull Requests.";
         let co = ChatOptions {
-            model: ChatModel::GPT35Turbo,
+            model: ChatModel::GPT4,
+            // model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
         };
-        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems.\n\n".to_string() + commit;
+        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got a patch summary");
             if reviews_text.len() < 9000 {
@@ -163,11 +164,12 @@ async fn handler(
     if reviews.len() > 1 {
         let system = "You are a helpful assistant and an experienced software developer.";
         let co = ChatOptions {
-            model: ChatModel::GPT35Turbo,
+            model: ChatModel::GPT4,
+            // model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
         };
-        let question = "Here is a set of reviews for software source code patches. Each review starts with a ------ line. Please write a summary of all the reviews.\n\n".to_string() + &reviews_text;
+        let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
