@@ -14,9 +14,9 @@
 
 [Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub bot to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
 
-* [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1493216830)
-* [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1493413405)
-* [[C++] Add an eBPF plugin to WasmEdge](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1493334260)
+* [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
+* [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
+* [[C++] Add an eBPF plugin to WasmEdge](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
 
 ## How it works
 
@@ -25,6 +25,8 @@ This flow function will be triggered and executed when a new PR is raised in the
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
 
 > The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+
+[![Watch a video demo](https://img.youtube.com/vi/V2LxcuA1cfo/default.jpg)](https://youtu.be/V2LxcuA1cfo)
 
 ## Prerequisites
 
