@@ -45,6 +45,8 @@ The app is designed to run on [flows.network](https://flows.network/), a serverl
 
 Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
 
+> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code.
+
 ### 2 Deploy the code on flow.network
 
 Go to [flows.network](https://flows.network/) to deploy your own flow function from the forked source code.
@@ -60,7 +62,7 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 * `login`: Fill in your personal github id here. The github app will act as you when posting review comments. 
 * `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
 * `repo` : Fill in the GitHub repo you want to deploy the bot on.
-* `openai_key_name`: Optional: Fill in **any name** you wish for your OpenAI API key. If you omit, it defaults to `global.free.trial`. We will connect this name to the actual key later.
+* `openai_key_name`: Fill in **any name** you wish for your OpenAI API key. You will connect this name to the actual key later.
 * `trigger_phrase`: Fill in the magic phrase to trigger a review in an existing PR.
 
 <img width="886" alt="image" src="https://user-images.githubusercontent.com/45785633/229329142-b7d77e53-4f3a-4d87-9136-4216191b18fc.png">
@@ -75,11 +77,11 @@ After that, the flows.network will direct you to configure the external services
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" buttons to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.** Or, you could request a free trial key under the default key name `global.free.trial`.
+1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.**
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
-2. Click the "Connect" or "+ Add new authentication" buttons to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission on the repo.
+2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission on the repo.
 
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to take new PRs or comments in existing PRs.
 
