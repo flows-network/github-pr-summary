@@ -147,6 +147,7 @@ async fn handler(
             model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
+            retry_times: 3,
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
@@ -169,6 +170,7 @@ async fn handler(
             model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
+            retry_times: 3,
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
