@@ -12,17 +12,17 @@
   </a>
 </p>
 
-[Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub bot to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
+[Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub 🤖 to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
 
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
 * [[C++] Add an eBPF plugin for WasmEdge](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
 
-> Still not convinced? See "potential problems 1" in [this bot review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
+> Still not convinced? [See "potential problems 1" in this review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
 
 ## How it works
 
-This flow function will be triggered and executed when a new PR is raised in the designated GitHub repo. It can also be triggered again when someone says a magic "trigger phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+This flow function (or 🤖) will be triggered and executed when a new PR is raised in the designated GitHub repo. It can also be triggered again when someone says a magic "trigger phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
 
@@ -37,9 +37,9 @@ You will need to bring your own [OpenAI API key](https://openai.com/blog/openai-
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
-## Deploy the PR review bot onto your GitHub repos
+## Deploy the PR review 🤖 onto your GitHub repos
 
-The bot is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automation.
+The 🤖 is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automation.
 
 ### 1 Fork this repo
 
@@ -60,8 +60,8 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 > The 5 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
 
 * `login`: Fill in your personal GitHub id here. The GitHub app will act as you when posting reviews.
-* `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
-* `repo` : Fill in the GitHub repo you want to deploy the bot on.
+* `owner`: Fill in the GitHub org for the repo you want to deploy the 🤖 on.
+* `repo` : Fill in the GitHub repo you want to deploy the 🤖 on.
 * `openai_key_name`: Fill in **any name** you wish for your OpenAI API key. You will connect this name to the actual key later.
 * `trigger_phrase`: Fill in the magic phrase to trigger a review from a PR comment.
 
@@ -71,17 +71,17 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 
 ### 3 Configure integrations
 
-After that, the flows.network will direct you to configure the external services required by your flow.
+After that, [flows.network](https://flows.network/) will direct you to configure the external services required by your flow function 🤖.
 
 <img width="927" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key. You could paste your OpenAI API key here and then give it a name. **Note** that the name here must match the name in the `openai_key_name` environment variable.
+1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key. You could paste your OpenAI API key here and then give it a name. **Note**  the name here must match the name in the `openai_key_name` environment variable.
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
-2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR or magic words (i.e., `trigger_phrase`) in PR comments.
 
