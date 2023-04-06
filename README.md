@@ -37,15 +37,15 @@ You will need to bring your own [OpenAI API key](https://openai.com/blog/openai-
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
-## Deploy the PR summary app for your GitHub repo
+## Deploy the PR review bot onto your GitHub repos
 
-The app is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automations.
+The bot is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automation.
 
 ### 1 Fork this repo
 
 Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
 
-> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code. GPT4 provides substantially better reviews, but it is also 10x more expensive.
+> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code. GPT4 provides substantially better code reviews, but it is also 10x more expensive.
 
 ### 2 Deploy the code on flow.network
 
@@ -57,17 +57,17 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 
 3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
 
-> The 5 varisbles below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the environment variables setup below.
+> The 5 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
 
-* `login`: Fill in your personal github id here. The github app will act as you when posting review comments. 
+* `login`: Fill in your personal GitHub id here. The GitHub app will act as you when posting reviews.
 * `owner`: Fill in the GitHub org for the repo you want to deploy the bot on.
 * `repo` : Fill in the GitHub repo you want to deploy the bot on.
 * `openai_key_name`: Fill in **any name** you wish for your OpenAI API key. You will connect this name to the actual key later.
-* `trigger_phrase`: Fill in the magic phrase to trigger a review in an existing PR.
+* `trigger_phrase`: Fill in the magic phrase to trigger a review from a PR comment.
 
 <img width="886" alt="image" src="https://user-images.githubusercontent.com/45785633/229329142-b7d77e53-4f3a-4d87-9136-4216191b18fc.png">
 
-4. At last, click on the Deploy button.
+4. Click on the Deploy button.
 
 ### 3 Configure integrations
 
@@ -77,13 +77,13 @@ After that, the flows.network will direct you to configure the external services
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API keys. You could paste your OpenAI API key here and then give it a name. **Note that the name here must match the name in the `openai_key_name` environment variable.**
+1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key. You could paste your OpenAI API key here and then give it a name. **Note** that the name here must match the name in the `openai_key_name` environment variable.
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
-2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission on the repo.
+2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the bot. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
-After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to take new PRs or comments in existing PRs.
+After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR or magic words (i.e., `trigger_phrase`) in PR comments.
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
 
