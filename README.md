@@ -18,7 +18,7 @@
 * [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
 * [[C++] Add an eBPF plugin for WasmEdge](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
 
-> Still not convinced? See "potential problem 1" in [this bot review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient implementation of an algorithm.
+> Still not convinced? See "potential problems 1" in [this bot review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
 
 ## How it works
 
@@ -33,7 +33,7 @@ The GitHub repo is connected to the flow function via the [flows.network](https:
 
 ## Prerequisites
 
-You will need an [OpenAI API key](https://openai.com/blog/openai-api). If you do not already have one, [sign up here](https://platform.openai.com/signup).
+You will need to bring your own [OpenAI API key](https://openai.com/blog/openai-api). If you do not already have one, [sign up here](https://platform.openai.com/signup).
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
@@ -45,7 +45,7 @@ The app is designed to run on [flows.network](https://flows.network/), a serverl
 
 Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
 
-> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code.
+> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code. GPT4 provides substantially better reviews, but it is also 10x more expensive.
 
 ### 2 Deploy the code on flow.network
 
