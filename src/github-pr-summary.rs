@@ -122,7 +122,7 @@ async fn handler(
         // Append the line to the current commit if the current commit is less than 18000 chars 
         //   the max token size or word count for GPT4 is 8192
         //   the max token size or word count for GPT35Turbo is 4096
-        if current_commit.len() < 18000 {
+        if current_commit.len() < 9000 {
             current_commit.push_str(line);
             current_commit.push('\n');
         }
@@ -143,15 +143,15 @@ async fn handler(
     for (_i, commit) in commits.iter().enumerate() {
         let system = "You are an experienced software developer. You will act as a reviewer for GitHub Pull Requests.";
         let co = ChatOptions {
-            model: ChatModel::GPT4,
-            // model: ChatModel::GPT35Turbo,
+            // model: ChatModel::GPT4,
+            model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
         if let Some(r) = chat_completion(openai_key_name, &chat_id, &question, &co) {
             write_error_log!("Got a patch summary");
-            if reviews_text.len() < 18000 {
+            if reviews_text.len() < 9000 {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
                 reviews_text.push('\n');
@@ -165,8 +165,8 @@ async fn handler(
     if reviews.len() > 1 {
         let system = "You are a helpful assistant and an experienced software developer.";
         let co = ChatOptions {
-            model: ChatModel::GPT4,
-            // model: ChatModel::GPT35Turbo,
+            // model: ChatModel::GPT4,
+            model: ChatModel::GPT35Turbo,
             restart: true,
             system_prompt: Some(system),
         };
