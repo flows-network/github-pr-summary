@@ -27,7 +27,7 @@ This flow function (or 🤖) will be triggered and executed when a new PR is rai
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
 
 <p align="center">
-  <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/V2LxcuA1cfo/hqdefault.jpg"/></a><br/>
+  <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/kvBhNBXmBaE/hqdefault.jpg"/></a><br/>
   <i>Click on the picture above to watch a 3-min tutorial video</i>
 </p>
 
