@@ -65,6 +65,8 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function f
 * `openai_key_name`: Fill in **any name** you wish for your OpenAI API key. You will connect this name to the actual key later.
 * `trigger_phrase`: Fill in the magic phrase to trigger a review from a PR comment.
 
+> Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
+
 <img width="886" alt="image" src="https://user-images.githubusercontent.com/45785633/229329142-b7d77e53-4f3a-4d87-9136-4216191b18fc.png">
 
 4. Click on the Deploy button.
