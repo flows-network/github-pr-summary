@@ -1,4 +1,4 @@
-# <p align="center">GitHub Pull Request review & summary 🤖 using ChatGPT/4</p>
+# <p align="center">GPT Nitro for Github PR</p>
 
 <p align="center">
   <a href="https://discord.gg/ccZn9ZMfFf">
