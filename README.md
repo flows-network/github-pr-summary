@@ -12,12 +12,6 @@
   </a>
 </p>
 
-<p align="center">
-<a href="https://www.producthunt.com/posts/gpt-nitro-for-github-pr?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-gpt&#0045;nitro&#0045;for&#0045;github&#0045;pr" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=387993&theme=light" alt="GPT&#0032;Nitro&#0032;for&#0032;Github&#0032;PR - A&#0032;ChatGPT&#0045;based&#0032;reviewer&#0032;for&#0032;your&#0032;GitHub&#0032;pull&#0032;requests | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-</p>
-
-We're launching on Product Hunt. Show your support by upvoting us and help us bring our innovative solution to a wider audience. Let's make this launch a success together.
-
 [Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub 🤖 to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
 
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
@@ -30,7 +24,7 @@ We're launching on Product Hunt. Show your support by upvoting us and help us br
 
 This flow function (or 🤖) will be triggered and executed when a new PR is raised in the designated GitHub repo. It can also be triggered again when someone says a magic "trigger phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
-The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in flows.network.
+The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in [flows.network](https://flows.network/).
 
 <p align="center">
   <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/kvBhNBXmBaE/hqdefault.jpg"/></a><br/>
@@ -53,22 +47,21 @@ Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your 
 
 > If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code. GPT4 provides substantially better code reviews, but it is also 10x more expensive.
 
-### 2 Deploy the code on flow.network
+### 2 Deploy the bot's source code on flow.network
 
-Go to [flows.network](https://flows.network/) to deploy your own flow function from the forked source code.
+Go to [flows.network](https://flows.network/) to deploy your own flow function (🤖) from the forked source code.
 
 1. Click on the "Create a Flow" button to start.
-2. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. 
+2. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. **NOTE: This is NOT the repo you want to install the bot on.**
 <img width="950" alt="image" src="https://user-images.githubusercontent.com/45785633/229329081-93728947-ad9f-44fb-85b1-067e6a0eb8ac.png">
 
 3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
 
-> The 5 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
+> The 4 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
 
 * `login`: Fill in your personal GitHub id here. The GitHub app will act as you when posting reviews.
 * `owner`: Fill in the GitHub org for the repo you want to deploy the 🤖 on.
 * `repo` : Fill in the GitHub repo you want to deploy the 🤖 on.
-* `openai_key_name`: Fill in **any name** you wish for your OpenAI API key. You will connect this name to the actual key later.
 * `trigger_phrase`: Fill in the magic phrase to trigger a review from a PR comment.
 
 > Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
@@ -85,7 +78,7 @@ After that, [flows.network](https://flows.network/) will direct you to configure
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key. You could paste your OpenAI API key here and then give it a name. **Note**  the name here must match the name in the `openai_key_name` environment variable.
+1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.taz
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
@@ -98,3 +91,7 @@ After that, click on the "Check" button to go to the flow details page. As soon 
 ## Credits
 
 This flow function is originally created by [Jay Chen](https://github.com/jaykchen), and [jinser](https://github.com/jetjinser) made significant contributions to optimize the event triggers from GitHub.
+
+<p align="center">
+<a href="https://www.producthunt.com/posts/gpt-nitro-for-github-pr?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-gpt&#0045;nitro&#0045;for&#0045;github&#0045;pr" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=387993&theme=light" alt="GPT&#0032;Nitro&#0032;for&#0032;Github&#0032;PR - A&#0032;ChatGPT&#0045;based&#0032;reviewer&#0032;for&#0032;your&#0032;GitHub&#0032;pull&#0032;requests | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+</p>
