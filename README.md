@@ -59,10 +59,10 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function (
 
 > The 4 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
 
-* `login`: Fill in your personal GitHub id here. The GitHub app will act as you when posting reviews.
-* `owner`: Fill in the GitHub org for the repo you want to deploy the 🤖 on.
-* `repo` : Fill in the GitHub repo you want to deploy the 🤖 on.
-* `trigger_phrase`: Fill in the magic phrase to trigger a review from a PR comment.
+* `login`: Your personal GitHub id. The GitHub app will act as you when posting reviews.
+* `owner`: GitHub org for the repo you want to deploy the 🤖 on.
+* `repo` : GitHub repo you want to deploy the 🤖 on.
+* `trigger_phrase`: The magic phrase to trigger a review from a PR comment.
 
 > Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
 
@@ -78,7 +78,7 @@ After that, [flows.network](https://flows.network/) will direct you to configure
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.taz
+1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
