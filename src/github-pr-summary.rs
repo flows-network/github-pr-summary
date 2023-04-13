@@ -85,8 +85,9 @@ async fn handler(
 
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
-    // let files = pulls.list_files(pull_number).await.unwrap();
-    // let mut files_as_text = String::new();
+    let _files = pulls.list_files(pull_number).await.unwrap();
+    let mut _files_as_text = String::new();
+    write_error_log!("GOT files");
     // files_as_text.push_str(&files.total_count.unwrap().to_string());
     /*
     for f in files.items {
