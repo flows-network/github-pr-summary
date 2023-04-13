@@ -87,13 +87,16 @@ async fn handler(
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
     let files = pulls.list_files(pull_number).await.unwrap();
     let mut files_as_text = String::new();
-    for f in files {
+    files_as_text.push_str(&files.total_count.unwrap().to_string());
+    /*
+    for f in files.items {
         files_as_text.push_str(&f.filename);
         files_as_text.push_str(f.raw_url.as_str());
         files_as_text.push_str(f.contents_url.as_str());
         files_as_text.push_str(&f.patch.unwrap());
         files_as_text.push_str("\n\n----\n\n");
     }
+    */
 
     /*
     let chat_id = format!("PR#{pull_number}");
