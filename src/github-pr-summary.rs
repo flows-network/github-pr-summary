@@ -8,6 +8,11 @@ use github_flows::{
 use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
 use std::env;
 
+//  The soft character limit of the input context size
+//   the max token size or word count for GPT4 is 8192
+//   the max token size or word count for GPT35Turbo is 4096
+static CHAR_SOFT_LIMIT : usize = 9000;
+
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
 pub async fn run() -> anyhow::Result<()> {
@@ -82,28 +87,8 @@ async fn handler(
 
     let octo = get_octo(Some(String::from(login)));
     let pulls = octo.pulls(owner, repo);
+    
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
-
-    /*
-    let mut files_as_text = String::new();
-    files_as_text.push_str(&title);
-    files_as_text.push_str("\n");
-    match pulls.list_files(pull_number).await {
-        Ok(files) => {
-            for f in files.items {
-                files_as_text.push_str(&f.filename);
-                files_as_text.push_str(f.raw_url.as_str());
-                files_as_text.push_str(f.contents_url.as_str());
-                files_as_text.push_str(&f.patch.unwrap());
-                files_as_text.push_str("\n\n----\n\n");
-            }
-        },
-        Err(_error) => {
-            write_error_log!("Cannot get file list");
-        }
-    }
-    */
-
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
     for line in patch_as_text.lines() {
@@ -116,10 +101,8 @@ async fn handler(
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 9000 chars 
-        //   the max token size or word count for GPT4 is 8192
-        //   the max token size or word count for GPT35Turbo is 4096
-        if current_commit.len() < 9000 {
+        // Append the line to the current commit if the current commit is less than CHAR_SOFT_LIMIT
+        if current_commit.len() < CHAR_SOFT_LIMIT {
             current_commit.push_str(line);
             current_commit.push('\n');
         }
@@ -148,8 +131,7 @@ async fn handler(
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
         if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
-            write_error_log!("Got a patch summary");
-            if reviews_text.len() < 9000 {
+            if reviews_text.len() < CHAR_SOFT_LIMIT {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
                 reviews_text.push('\n');
@@ -160,9 +142,6 @@ async fn handler(
 
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
-    // resp.push_str(&patch_as_text);
-    // resp.push_str("\n\n------\n\n");
-    // resp.push_str(&files_as_text);
     if reviews.len() > 1 {
         let co = ChatOptions {
             // model: ChatModel::GPT4,
