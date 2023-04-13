@@ -1,4 +1,4 @@
-# <p align="center">GPT Nitro for Github PR</p>
+# <p align="center">ChatGPT/4 code reviewer for Github PR</p>
 
 <p align="center">
   <a href="https://discord.gg/ccZn9ZMfFf">
@@ -25,6 +25,12 @@
 This flow function (or 🤖) will be triggered and executed when a new PR is raised in the designated GitHub repo. It can also be triggered again when someone says a magic "trigger phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in [flows.network](https://flows.network/).
+
+### Deploy your own code review bot in 3 simple steps
+
+1. Fork this repo. It contains the source code for the GitHub bot.
+2. Import the forked repo on [flows.network](https://flows.network/) as a flow function.
+3. Connect the flow function to the GitHub repo you want to deploy the bot on [flows.network](https://flows.network/) UI. 
 
 <p align="center">
   <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/kvBhNBXmBaE/hqdefault.jpg"/></a><br/>
