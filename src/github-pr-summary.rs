@@ -85,22 +85,25 @@ async fn handler(
 
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
-    let _files = pulls.list_files(pull_number).await.unwrap();
-    // write_error_log!(format!("Got {} files", files.total_count.unwrap()));
+
     let mut files_as_text = String::new();
     files_as_text.push_str(&title);
     files_as_text.push_str("\n");
-    // files_as_text.push_str(&files.total_count.unwrap().to_string());
-    // files_as_text.push_str(files.first.unwrap().as_str());
-    /*
-    for f in files.items {
-        files_as_text.push_str(&f.filename);
-        files_as_text.push_str(f.raw_url.as_str());
-        files_as_text.push_str(f.contents_url.as_str());
-        files_as_text.push_str(&f.patch.unwrap());
-        files_as_text.push_str("\n\n----\n\n");
+    match pulls.list_files(pull_number).await {
+        Ok(files) => {
+            for f in files.items {
+                files_as_text.push_str(&f.filename);
+                files_as_text.push_str(f.raw_url.as_str());
+                files_as_text.push_str(f.contents_url.as_str());
+                files_as_text.push_str(&f.patch.unwrap());
+                files_as_text.push_str("\n\n----\n\n");
+            }
+        },
+        Err(_error) => {
+            write_error_log!("Cannot get file list");
+        }
     }
-    */
+    // files_as_text.push_str(&files.total_count.unwrap().to_string());
 
     /*
     let chat_id = format!("PR#{pull_number}");
