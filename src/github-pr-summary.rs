@@ -5,7 +5,7 @@ use github_flows::{
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
     EventPayload,
 };
-// use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
+use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
 use std::env;
 
 #[no_mangle]
@@ -81,11 +81,10 @@ async fn handler(
     };
 
     let octo = get_octo(Some(String::from(login)));
-    let issues = octo.issues(owner, repo);
-
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
 
+    /*
     let mut files_as_text = String::new();
     files_as_text.push_str(&title);
     files_as_text.push_str("\n");
@@ -103,10 +102,7 @@ async fn handler(
             write_error_log!("Cannot get file list");
         }
     }
-    // files_as_text.push_str(&files.total_count.unwrap().to_string());
-
-    /*
-    let chat_id = format!("PR#{pull_number}");
+    */
 
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
@@ -138,6 +134,7 @@ async fn handler(
         return;
     }
 
+    let chat_id = format!("PR#{pull_number}");
     let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\".", title);
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
@@ -160,14 +157,12 @@ async fn handler(
             reviews.push(r.choice);
         }
     }
-    */
 
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
-    resp.push_str(&patch_as_text);
-    resp.push_str("\n\n------\n\n");
-    resp.push_str(&files_as_text);
-    /*
+    // resp.push_str(&patch_as_text);
+    // resp.push_str("\n\n------\n\n");
+    // resp.push_str(&files_as_text);
     if reviews.len() > 1 {
         let co = ChatOptions {
             // model: ChatModel::GPT4,
@@ -188,7 +183,8 @@ async fn handler(
         resp.push_str(review);
         resp.push_str("\n\n");
     }
-    */
+
     // Send the entire response to GitHub PR
+    let issues = octo.issues(owner, repo);
     issues.create_comment(pull_number, resp).await.unwrap();
 }
