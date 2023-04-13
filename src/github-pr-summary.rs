@@ -85,10 +85,10 @@ async fn handler(
 
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
-    let _files = pulls.list_files(pull_number).await.unwrap();
-    let mut _files_as_text = String::new();
+    let files = pulls.list_files(pull_number).await.unwrap();
+    let mut files_as_text = String::new();
     write_error_log!("GOT files");
-    // files_as_text.push_str(&files.total_count.unwrap().to_string());
+    files_as_text.push_str(&files.total_count.unwrap().to_string());
     /*
     for f in files.items {
         files_as_text.push_str(&f.filename);
@@ -160,7 +160,7 @@ async fn handler(
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     resp.push_str(&patch_as_text);
     resp.push_str("\n\n------\n\n");
-    // resp.push_str(&files_as_text);
+    resp.push_str(&files_as_text);
     /*
     if reviews.len() > 1 {
         let co = ChatOptions {
