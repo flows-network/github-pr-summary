@@ -5,10 +5,6 @@ use github_flows::{
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
     EventPayload,
 };
-use http_req::{
-    request::{Method, Request},
-    uri::Uri,
-};
 use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
 use std::env;
 
@@ -44,7 +40,7 @@ async fn handler(
     trigger_phrase: &str,
     payload: EventPayload,
 ) {
-    let (_title, pull_number, _contributor) = match payload {
+    let (title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
             if e.action != PullRequestEventAction::Opened {
                 write_error_log!("Not a Opened pull event");
@@ -87,22 +83,10 @@ async fn handler(
     let octo = get_octo(Some(String::from(login)));
     let issues = octo.issues(owner, repo);
 
-    let chat_id = format!("PR#{pull_number}");
+    let pulls = octo.pulls(owner, repo);
+    let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
 
-    // let patch_url = "https://patch-diff.githubusercontent.com/raw/WasmEdge/WasmEdge/pull/2368.patch".to_string();
-    let patch_url = format!(
-        "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{pull_number}.patch"
-    );
-    let patch_uri = Uri::try_from(patch_url.as_str()).unwrap();
-    let mut writer = Vec::new();
-    let _ = Request::new(&patch_uri)
-        .method(Method::GET)
-        .header("Accept", "application/vnd.github+json")
-        .header("User-Agent", "Flows Network Connector")
-        .send(&mut writer)
-        .map_err(|_e| {})
-        .unwrap();
-    let patch_as_text = String::from_utf8_lossy(&writer);
+    let chat_id = format!("PR#{pull_number}");
 
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
@@ -116,7 +100,7 @@ async fn handler(
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than 18000 chars 
+        // Append the line to the current commit if the current commit is less than 9000 chars 
         //   the max token size or word count for GPT4 is 8192
         //   the max token size or word count for GPT35Turbo is 4096
         if current_commit.len() < 9000 {
@@ -128,17 +112,16 @@ async fn handler(
         // Store the last commit
         commits.push(current_commit.clone());
     }
-    // write_error_log!(&format!("Num of commits = {}", commits.len()));
 
     if commits.is_empty() {
         write_error_log!("Cannot parse any commit from the patch file");
         return;
     }
 
+    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\".", title);
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
-        let system = "You are an experienced software developer. You will act as a reviewer for GitHub Pull Requests.";
         let co = ChatOptions {
             // model: ChatModel::GPT4,
             model: ChatModel::GPT35Turbo,
@@ -161,7 +144,6 @@ async fn handler(
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
-        let system = "You are a helpful assistant and an experienced software developer.";
         let co = ChatOptions {
             // model: ChatModel::GPT4,
             model: ChatModel::GPT35Turbo,
