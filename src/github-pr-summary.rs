@@ -5,7 +5,7 @@ use github_flows::{
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
     EventPayload,
 };
-use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
+// use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
 use std::env;
 
 #[no_mangle]
@@ -40,7 +40,7 @@ async fn handler(
     trigger_phrase: &str,
     payload: EventPayload,
 ) {
-    let (title, pull_number, _contributor) = match payload {
+    let (_title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
             if e.action != PullRequestEventAction::Opened {
                 write_error_log!("Not a Opened pull event");
@@ -85,7 +85,17 @@ async fn handler(
 
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
+    let files = pulls.list_files(pull_number).await.unwrap();
+    let mut files_as_text = String::new();
+    for f in files {
+        files_as_text.push_str(&f.filename);
+        files_as_text.push_str(f.raw_url.as_str());
+        files_as_text.push_str(f.contents_url.as_str());
+        files_as_text.push_str(&f.patch.unwrap());
+        files_as_text.push_str("\n\n----\n\n");
+    }
 
+    /*
     let chat_id = format!("PR#{pull_number}");
 
     let mut current_commit = String::new();
@@ -140,11 +150,14 @@ async fn handler(
             reviews.push(r.choice);
         }
     }
+    */
 
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     resp.push_str(&patch_as_text);
     resp.push_str("\n\n------\n\n");
+    resp.push_str(&files_as_text);
+    /*
     if reviews.len() > 1 {
         let co = ChatOptions {
             // model: ChatModel::GPT4,
@@ -165,6 +178,7 @@ async fn handler(
         resp.push_str(review);
         resp.push_str("\n\n");
     }
+    */
     // Send the entire response to GitHub PR
     issues.create_comment(pull_number, resp).await.unwrap();
 }
