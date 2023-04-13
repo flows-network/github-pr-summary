@@ -143,6 +143,8 @@ async fn handler(
 
     let mut resp = String::new();
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
+    resp.push_str(patch_as_text);
+    resp.push_str("\n\n------\n\n");
     if reviews.len() > 1 {
         let co = ChatOptions {
             // model: ChatModel::GPT4,
