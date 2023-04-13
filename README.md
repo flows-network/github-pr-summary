@@ -17,6 +17,7 @@
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
 * [[C++] Add an eBPF plugin for WasmEdge](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
+* [[Haskell] Improve the CLI utility for WasmEdge Component Model tooling](https://github.com/second-state/witc/pull/73#issuecomment-1507539260)
 
 > Still not convinced? [See "potential problems 1" in this review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
 
@@ -28,9 +29,9 @@ The GitHub repo is connected to the flow function via the [flows.network](https:
 
 ### Deploy your own code review bot in 3 simple steps
 
-1. Fork this repo. It contains the source code for the GitHub bot.
+1. Fork this repo to your own GitHub account. It contains the source code for the GitHub bot.
 2. Import the forked repo on [flows.network](https://flows.network/) as a flow function.
-3. Connect the flow function to the GitHub repo you want to deploy the bot on [flows.network](https://flows.network/) UI. 
+3. Connect the flow function to the GitHub repo you want to deploy the bot on (using the [flows.network](https://flows.network/) UI). 
 
 <p align="center">
   <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/kvBhNBXmBaE/hqdefault.jpg"/></a><br/>
