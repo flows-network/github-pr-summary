@@ -122,6 +122,7 @@ async fn handler(
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
+        let commit_hash = &commit[5..45];
         let co = ChatOptions {
             // model: ChatModel::GPT4,
             model: ChatModel::GPT35Turbo,
@@ -129,14 +130,18 @@ async fn handler(
             system_prompt: Some(system),
             retry_times: 3,
         };
-        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + commit;
+        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
         if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
             if reviews_text.len() < CHAR_SOFT_LIMIT {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
-                reviews_text.push('\n');
+                reviews_text.push_str("\n");
             }
-            reviews.push(r.choice);
+            let mut review = String::new();
+            review.push_str(&format!("### [Commit {commit_hash}](https://github.com/WasmEdge/WasmEdge/pull/{pull_number}/commits/{commit_hash})\n"));
+            review.push_str(&r.choice);
+            review.push_str("\n\n");
+            reviews.push(review);
         }
     }
 
@@ -157,13 +162,18 @@ async fn handler(
             resp.push_str("\n\n## Details\n\n");
         }
     }
-    for (i, review) in reviews.iter().enumerate() {
-        resp.push_str(&format!("### Commit {}\n", i + 1));
+    for (_i, review) in reviews.iter().enumerate() {
         resp.push_str(review);
-        resp.push_str("\n\n");
     }
 
     // Send the entire response to GitHub PR
     let issues = octo.issues(owner, repo);
     issues.create_comment(pull_number, resp).await.unwrap();
+}
+
+fn truncate(s: &str, max_chars: usize) -> &str {
+    match s.char_indices().nth(max_chars) {
+        None => s,
+        Some((idx, _)) => &s[..idx],
+    }
 }
