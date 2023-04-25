@@ -3,6 +3,7 @@ use flowsnet_platform_sdk::write_error_log;
 use github_flows::{
     get_octo, listen_to_event,
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
+    octocrab::models::CommentId,
     EventPayload,
 };
 use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
@@ -88,8 +89,20 @@ async fn handler(
     };
 
     let octo = get_octo(Some(String::from(login)));
+
+    let issues = octo.issues(owner, repo);
+    let comment_id: CommentId;
+    match issues.create_comment(pull_number, "Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
+        Ok(comment) => {
+            comment_id = comment.id;
+        }
+        Err(error) => {
+            write_error_log!(format!("Error posting comment: {}", error));
+            return;
+        }
+    }
+
     let pulls = octo.pulls(owner, repo);
-    
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
@@ -167,9 +180,8 @@ async fn handler(
     }
 
     // Send the entire response to GitHub PR
-    let issues = octo.issues(owner, repo);
     // issues.create_comment(pull_number, resp).await.unwrap();
-    match issues.create_comment(pull_number, resp).await {
+    match issues.update_comment(comment_id, resp).await {
         Err(error) => {
             write_error_log!(format!("Error posting resp: {}", error));
         }
