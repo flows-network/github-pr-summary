@@ -6,15 +6,15 @@ use github_flows::{
     octocrab::models::CommentId,
     EventPayload,
 };
-use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
+use openai_flows::{chat_completion, ChatModel, ChatOptions};
 use std::env;
 
 //  The soft character limit of the input context size
 //   the max token size or word count for GPT4 is 8192
 //   the max token size or word count for GPT35Turbo is 4096
-static CHAR_SOFT_LIMIT : usize = 9000;
-static MODEL : ChatModel = ChatModel::GPT35Turbo;
-// static MODEL : ChatModel = ChatModel::GPT4;
+static CHAR_SOFT_LIMIT : usize = 18000;
+// static MODEL : ChatModel = ChatModel::GPT35Turbo;
+static MODEL : ChatModel = ChatModel::GPT4;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -73,7 +73,7 @@ async fn handler(
             //     return;
             // }
             // TODO: Makeshift but operational
-            if body.starts_with("Hello, I am a [serverless review bot]") {
+            if body.starts_with("Hello, I am a [code review bot]") {
                 write_error_log!("Ignore comment via bot");
                 return;
             };
@@ -92,7 +92,7 @@ async fn handler(
 
     let issues = octo.issues(owner, repo);
     let comment_id: CommentId;
-    match issues.create_comment(pull_number, "Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
+    match issues.create_comment(pull_number, "Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
         Ok(comment) => {
             comment_id = comment.id;
         }
@@ -145,7 +145,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
-        if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
+        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
             if reviews_text.len() < CHAR_SOFT_LIMIT {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
@@ -160,7 +160,7 @@ async fn handler(
     }
 
     let mut resp = String::new();
-    resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
+    resp.push_str("Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
         let co = ChatOptions {
             model: MODEL,
@@ -169,7 +169,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
+        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
