@@ -5,15 +5,15 @@ use github_flows::{
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
     EventPayload,
 };
-use openai_flows::{chat_completion_default_key, ChatModel, ChatOptions};
+use openai_flows::{chat_completion, ChatModel, ChatOptions};
 use std::env;
 
 //  The soft character limit of the input context size
 //   the max token size or word count for GPT4 is 8192
 //   the max token size or word count for GPT35Turbo is 4096
-static CHAR_SOFT_LIMIT : usize = 9000;
-static MODEL : ChatModel = ChatModel::GPT35Turbo;
-// static MODEL : ChatModel = ChatModel::GPT4;
+static CHAR_SOFT_LIMIT : usize = 18000;
+// static MODEL : ChatModel = ChatModel::GPT35Turbo;
+static MODEL : ChatModel = ChatModel::GPT4;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -47,19 +47,7 @@ async fn handler(
     trigger_phrase: &str,
     payload: EventPayload,
 ) {
-    let (title, pull_number, _contributor) = match payload {
-        EventPayload::PullRequestEvent(e) => {
-            if e.action != PullRequestEventAction::Opened {
-                write_error_log!("Not a Opened pull event");
-                return;
-            }
-            let p = e.pull_request;
-            (
-                p.title.unwrap_or("".to_string()),
-                p.number,
-                p.user.unwrap().login,
-            )
-        }
+    let (pull_url, issue_number, _contributor) = match payload {
         EventPayload::IssueCommentEvent(e) => {
             if e.action == IssueCommentEventAction::Deleted {
                 write_error_log!("Deleted issue event");
@@ -87,8 +75,14 @@ async fn handler(
         _ => return,
     };
 
+    let pull_url_components : Vec<&str> = pull_url.split("/").collect();
+    if pull_url_components.len() < 5 { return; }
+    let pull_number = pull_url_components[pull_url_components.len() - 1].parse::<u64>().unwrap();
+    let pull_repo = pull_url_components[pull_url_components.len() - 3];
+    let pull_owner = pull_url_components[pull_url_components.len() - 4];
+
     let octo = get_octo(Some(String::from(login)));
-    let pulls = octo.pulls(owner, repo);
+    let pulls = octo.pulls(pull_owner, pull_repo);
     
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
     let mut current_commit = String::new();
@@ -120,7 +114,7 @@ async fn handler(
     }
 
     let chat_id = format!("PR#{pull_number}");
-    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\".", title);
+    let system = "You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request.";
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
@@ -132,7 +126,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
-        if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
+        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
             if reviews_text.len() < CHAR_SOFT_LIMIT {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
@@ -156,7 +150,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
+        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
@@ -168,8 +162,8 @@ async fn handler(
 
     // Send the entire response to GitHub PR
     let issues = octo.issues(owner, repo);
-    // issues.create_comment(pull_number, resp).await.unwrap();
-    match issues.create_comment(pull_number, resp).await {
+    // issues.create_comment(issue_number, resp).await.unwrap();
+    match issues.create_comment(issue_number, resp).await {
         Err(error) => {
             write_error_log!(format!("Error posting resp: {}", error));
         }
