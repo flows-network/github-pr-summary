@@ -12,6 +12,8 @@ use std::env;
 //   the max token size or word count for GPT4 is 8192
 //   the max token size or word count for GPT35Turbo is 4096
 static CHAR_SOFT_LIMIT : usize = 9000;
+static MODEL : ChatModel = ChatModel::GPT35Turbo;
+// static MODEL : ChatModel = ChatModel::GPT4;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -124,8 +126,7 @@ async fn handler(
     for (_i, commit) in commits.iter().enumerate() {
         let commit_hash = &commit[5..45];
         let co = ChatOptions {
-            // model: ChatModel::GPT4,
-            model: ChatModel::GPT35Turbo,
+            model: MODEL,
             restart: true,
             system_prompt: Some(system),
             retry_times: 3,
@@ -149,8 +150,7 @@ async fn handler(
     resp.push_str("Hello, I am a [serverless review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
         let co = ChatOptions {
-            // model: ChatModel::GPT4,
-            model: ChatModel::GPT35Turbo,
+            model: MODEL,
             restart: true,
             system_prompt: Some(system),
             retry_times: 3,
@@ -168,7 +168,13 @@ async fn handler(
 
     // Send the entire response to GitHub PR
     let issues = octo.issues(owner, repo);
-    issues.create_comment(pull_number, resp).await.unwrap();
+    // issues.create_comment(pull_number, resp).await.unwrap();
+    match issues.create_comment(pull_number, resp).await {
+        Err(error) => {
+            write_error_log!(format!("Error posting resp: {}", error));
+        }
+        _ => {}
+    }
 }
 
 fn truncate(s: &str, max_chars: usize) -> &str {
