@@ -160,6 +160,10 @@ async fn handler(
         resp.push_str(review);
     }
 
+    resp.push_str("cc ");
+    resp.push_str(&pull_url);
+    resp.push_str("\n");
+
     // Send the entire response to GitHub PR
     let issues = octo.issues(owner, repo);
     // issues.create_comment(issue_number, resp).await.unwrap();
