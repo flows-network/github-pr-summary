@@ -23,12 +23,12 @@
 
 ## How it works
 
-This flow function (or 🤖) will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+This flow function (or 🤖) will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and run in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
 * The code review comment is updated automatically every time a new commit is pushed to this PR.
 * A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
 
-The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in [flows.network](https://flows.network/).
+The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The trigger phrase can be configured in [flows.network](https://flows.network/).
 
 ### Deploy your own code review bot in 3 simple steps
 
