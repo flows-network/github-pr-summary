@@ -23,7 +23,10 @@
 
 ## How it works
 
-This flow function (or 🤖) will be triggered and executed when a new PR is raised in the designated GitHub repo. It can also be triggered again when someone says a magic "trigger phrase" in the PR's comments section. Once triggered, the flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+This flow function (or 🤖) will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and runs in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+
+* The code review comment is updated automatically every time a new commit is pushed to this PR.
+* A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
 
 The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The "trigger phrase" can also be configured in [flows.network](https://flows.network/).
 
@@ -60,6 +63,7 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function (
 
 1. Click on the "Create a Flow" button to start.
 2. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. **NOTE: This is NOT the repo you want to install the bot on.**
+
 <img width="950" alt="image" src="https://user-images.githubusercontent.com/45785633/229329081-93728947-ad9f-44fb-85b1-067e6a0eb8ac.png">
 
 3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
@@ -67,9 +71,9 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function (
 > The 4 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
 
 * `login`: Your personal GitHub id. The GitHub app will act as you when posting reviews.
-* `owner`: GitHub org for the repo you want to deploy the 🤖 on.
-* `repo` : GitHub repo you want to deploy the 🤖 on.
-* `trigger_phrase`: The magic phrase to trigger a review from a PR comment.
+* `owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
+* `repo` : GitHub repo *you want to deploy the 🤖 on*.
+* `trigger_phrase`: Optional: The magic phrase to trigger a review from a PR comment.
 
 > Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
 
