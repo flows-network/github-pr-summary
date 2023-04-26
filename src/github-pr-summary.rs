@@ -48,9 +48,14 @@ async fn handler(
     trigger_phrase: &str,
     payload: EventPayload,
 ) {
+    let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
-            if e.action != PullRequestEventAction::Opened {
+            if e.action == PullRequestEventAction::Opened {
+                // Do nothing, continue
+            } else if e.action == PullRequestEventAction::Synchronize {
+                new_commit = true;
+            } else {
                 write_error_log!("Not a Opened pull event");
                 return;
             }
@@ -91,16 +96,36 @@ async fn handler(
     let octo = get_octo(Some(String::from(login)));
 
     let issues = octo.issues(owner, repo);
-    let comment_id: CommentId;
-    match issues.create_comment(pull_number, "Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
-        Ok(comment) => {
-            comment_id = comment.id;
+    let mut comment_id: CommentId = 0u64.into();
+    if new_commit {
+        // Find the first "Hello, I am a [code review bot]" comment to update
+        match issues.list_comments(pull_number).send().await {
+            Ok(comments) => {
+                for c in comments.items {
+                    if c.body.unwrap_or_default().starts_with("Hello, I am a [code review bot]") {
+                        comment_id = c.id;
+                        break;
+                    }
+                }
+            }
+            Err(error) => {
+                write_error_log!(format!("Error getting comments: {}", error));
+                return;
+            }
         }
-        Err(error) => {
-            write_error_log!(format!("Error posting comment: {}", error));
-            return;
+    } else {
+        // PR OPEN or Trigger phrase: create a new comment
+        match issues.create_comment(pull_number, "Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
+            Ok(comment) => {
+                comment_id = comment.id;
+            }
+            Err(error) => {
+                write_error_log!(format!("Error posting comment: {}", error));
+                return;
+            }
         }
     }
+    if comment_id == 0u64.into() { return; }
 
     let pulls = octo.pulls(owner, repo);
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
