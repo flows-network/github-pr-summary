@@ -21,14 +21,14 @@
 
 > Still not convinced? [See "potential problems 1" in this review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
 
+This bot summarizes commits in the PR. Alternatively, you can use [this bot](https://github.com/flows-network/github-pr-review) to review changed files in the PR. 
+
 ## How it works
 
 This flow function (or 🤖) will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and run in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
 * The code review comment is updated automatically every time a new commit is pushed to this PR.
 * A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
-
-The GitHub repo is connected to the flow function via the [flows.network](https://flows.network/) platform. The trigger phrase can be configured in [flows.network](https://flows.network/).
 
 ### Deploy your own code review bot in 3 simple steps
 
@@ -73,7 +73,7 @@ Go to [flows.network](https://flows.network/) to deploy your own flow function (
 * `login`: Your personal GitHub id. The GitHub app will act as you when posting reviews.
 * `owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
 * `repo` : GitHub repo *you want to deploy the 🤖 on*.
-* `trigger_phrase`: Optional: The magic phrase to trigger a review from a PR comment.
+* `trigger_phrase`: Optional -- The magic phrase to trigger a review from a PR comment.
 
 > Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
 
