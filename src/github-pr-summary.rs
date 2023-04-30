@@ -12,9 +12,9 @@ use std::env;
 //  The soft character limit of the input context size
 //   the max token size or word count for GPT4 is 8192
 //   the max token size or word count for GPT35Turbo is 4096
-static CHAR_SOFT_LIMIT : usize = 18000;
-// static MODEL : ChatModel = ChatModel::GPT35Turbo;
-static MODEL : ChatModel = ChatModel::GPT4;
+static CHAR_SOFT_LIMIT : usize = 9000;
+static MODEL : ChatModel = ChatModel::GPT35Turbo;
+// static MODEL : ChatModel = ChatModel::GPT4;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -170,7 +170,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
-        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
+        if let Some(r) = chat_completion("Default", &chat_id, &question, &co) {
             if reviews_text.len() < CHAR_SOFT_LIMIT {
                 reviews_text.push_str("------\n");
                 reviews_text.push_str(&r.choice);
@@ -194,7 +194,7 @@ async fn handler(
             retry_times: 3,
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
+        if let Some(r) = chat_completion("Default", &chat_id, &question, &co) {
             write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
