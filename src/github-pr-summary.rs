@@ -171,19 +171,22 @@ async fn handler(
             retry_times: 3,
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
-        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
-            if reviews_text.len() < CHAR_SOFT_LIMIT {
-                reviews_text.push_str("------\n");
-                reviews_text.push_str(&r.choice);
-                reviews_text.push_str("\n");
+        match chat_completion("gpt4", &chat_id, &question, &co).await {
+            Ok(r) => {
+                if reviews_text.len() < CHAR_SOFT_LIMIT {
+                    reviews_text.push_str("------\n");
+                    reviews_text.push_str(&r.choice);
+                    reviews_text.push_str("\n");
+                }
+                let mut review = String::new();
+                review.push_str(&format!("### [Commit {commit_hash}](https://github.com/WasmEdge/WasmEdge/pull/{pull_number}/commits/{commit_hash})\n"));
+                review.push_str(&r.choice);
+                review.push_str("\n\n");
+                reviews.push(review);
             }
-            let mut review = String::new();
-            review.push_str(&format!("### [Commit {commit_hash}](https://github.com/WasmEdge/WasmEdge/pull/{pull_number}/commits/{commit_hash})\n"));
-            review.push_str(&r.choice);
-            review.push_str("\n\n");
-            reviews.push(review);
-        } else {
-            log::error!("OpenAI returned an error for commit {commit_hash}");
+            Err(e) => {
+                log::error!("OpenAI returned an error for commit {commit_hash}: {}", e);
+            }
         }
     }
 
@@ -197,11 +200,14 @@ async fn handler(
             retry_times: 3,
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        if let Some(r) = chat_completion("gpt4", &chat_id, &question, &co) {
-            resp.push_str(&r.choice);
-            resp.push_str("\n\n## Details\n\n");
-        } else {
-            log::error!("OpenAI returned an error for the overall summary");
+        match chat_completion("gpt4", &chat_id, &question, &co).await {
+            Ok(r) => {
+                resp.push_str(&r.choice);
+                resp.push_str("\n\n## Details\n\n");
+            }
+            Err(e) => {
+                log::error!("OpenAI returned an error for the overall summary: {}", e);
+            }
         }
     }
     for (_i, review) in reviews.iter().enumerate() {
