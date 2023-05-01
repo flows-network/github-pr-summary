@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use flowsnet_platform_sdk::write_error_log;
+use flowsnet_platform_sdk::logger;
 use github_flows::{
     get_octo, listen_to_event,
     octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
@@ -20,6 +20,7 @@ static MODEL : ChatModel = ChatModel::GPT35Turbo;
 #[tokio::main(flavor = "current_thread")]
 pub async fn run() -> anyhow::Result<()> {
     dotenv().ok();
+    logger::init();
 
     let login = env::var("login").unwrap_or("juntao".to_string());
     let owner = env::var("owner").unwrap_or("juntao".to_string());
@@ -56,7 +57,7 @@ async fn handler(
             } else if e.action == PullRequestEventAction::Synchronize {
                 new_commit = true;
             } else {
-                write_error_log!("Not a Opened pull event");
+                log::info!("Not a Opened pull event");
                 return;
             }
             let p = e.pull_request;
@@ -68,7 +69,7 @@ async fn handler(
         }
         EventPayload::IssueCommentEvent(e) => {
             if e.action == IssueCommentEventAction::Deleted {
-                write_error_log!("Deleted issue event");
+                log::info!("Deleted issue event");
                 return;
             }
 
@@ -79,12 +80,12 @@ async fn handler(
             // }
             // TODO: Makeshift but operational
             if body.starts_with("Hello, I am a [code review bot]") {
-                write_error_log!("Ignore comment via bot");
+                log::info!("Ignore comment via bot");
                 return;
             };
 
             if !body.to_lowercase().contains(&trigger_phrase.to_lowercase()) {
-                write_error_log!(format!("Ignore the comment, raw: {}", body));
+                log::info!("Ignore the comment without the magic words");
                 return;
             }
 
@@ -109,7 +110,7 @@ async fn handler(
                 }
             }
             Err(error) => {
-                write_error_log!(format!("Error getting comments: {}", error));
+                log::error!("Error getting comments: {}", error);
                 return;
             }
         }
@@ -120,7 +121,7 @@ async fn handler(
                 comment_id = comment.id;
             }
             Err(error) => {
-                write_error_log!(format!("Error posting comment: {}", error));
+                log::error!("Error posting comment: {}", error);
                 return;
             }
         }
@@ -153,7 +154,7 @@ async fn handler(
     }
 
     if commits.is_empty() {
-        write_error_log!("Cannot parse any commit from the patch file");
+        log::error!("Cannot parse any commit from the patch file");
         return;
     }
 
@@ -181,6 +182,8 @@ async fn handler(
             review.push_str(&r.choice);
             review.push_str("\n\n");
             reviews.push(review);
+        } else {
+            log::error!("OpenAI returned an error for commit {commit_hash}");
         }
     }
 
@@ -195,9 +198,10 @@ async fn handler(
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
         if let Some(r) = chat_completion_default_key(&chat_id, &question, &co) {
-            write_error_log!("Got the overall summary");
             resp.push_str(&r.choice);
             resp.push_str("\n\n## Details\n\n");
+        } else {
+            log::error!("OpenAI returned an error for the overall summary");
         }
     }
     for (_i, review) in reviews.iter().enumerate() {
@@ -208,7 +212,7 @@ async fn handler(
     // issues.create_comment(pull_number, resp).await.unwrap();
     match issues.update_comment(comment_id, resp).await {
         Err(error) => {
-            write_error_log!(format!("Error posting resp: {}", error));
+            log::error!("Error posting resp: {}", error);
         }
         _ => {}
     }
