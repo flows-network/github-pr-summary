@@ -22,9 +22,9 @@ pub async fn run() -> anyhow::Result<()> {
     dotenv().ok();
     logger::init();
 
-    let login = env::var("login").unwrap_or("juntao".to_string());
-    let owner = env::var("owner").unwrap_or("juntao".to_string());
-    let repo = env::var("repo").unwrap_or("test".to_string());
+    let login = env::var("github_login").unwrap_or("juntao".to_string());
+    let owner = env::var("github_owner").unwrap_or("juntao".to_string());
+    let repo = env::var("github_repo").unwrap_or("test".to_string());
     let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
 
     let events = vec!["pull_request", "issue_comment"];
