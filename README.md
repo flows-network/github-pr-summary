@@ -50,7 +50,6 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 * `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
 * `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
-* `trigger_phrase`: Optional -- The magic phrase to trigger a review from a PR comment.
 
 > Let's see an example. You would like to deploy the bot to summarize PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
 
@@ -73,6 +72,22 @@ Click on the "Connect" or "+ Add new authentication" button to give the function
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
+
+## What's next?
+
+### Change the magic phrase
+
+Go to the "Settings" tab of the running flow function for the bot, you can add an optional `trigger_phrase` config. The value of this config is the magic phrase the user will say to trigger a review from a PR comment.
+
+### Use the bot on multiple repos
+
+You can create a new flow and import the source code repo for the bot (i.e., the repo you cloned from the template). Then, you can use the flow config to specify the `github_owner` and `github_repo` to point to the target repo you need to deploy the bot on. Deploy and authorize access to that target repo.
+
+You can repeat this for all target repos you would like to deploy this bot on.
+
+### Customize the bot
+
+The bot's source code is available in the GitHub repo you cloned from the template. Feel free to make changes to the source code (e.g., model, context length, API key and prompts) to fit your own needs. If you need help, [ask in Discord](https://discord.gg/ccZn9ZMfFf)!
 
 ## Credits
 
