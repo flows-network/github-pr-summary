@@ -73,7 +73,7 @@ After that, click on the "Check" button to go to the flow details page. As soon 
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
 
-## What's next?
+## FAQ
 
 ### Change the magic phrase
 
