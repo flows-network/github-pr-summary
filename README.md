@@ -7,12 +7,12 @@
   <a href="https://twitter.com/flows_network">
     <img src="https://img.shields.io/badge/Twitter-1DA1F2?logo=twitter&amp;logoColor=white" alt="flows.network Twitter">
   </a>
-   <a href="https://flows.network/flow/new">
+   <a href="https://flows.network/flow/createByTemplate/summarize-github-pull-requests">
     <img src="https://img.shields.io/website?up_message=deploy&url=https%3A%2F%2Fflows.network%2Fflow%2Fnew" alt="Create a flow">
   </a>
 </p>
 
-[Deploy this function on flows.network](#deploy-the-pr-summary-app-for-your-github-repo), and you will get a GitHub 🤖 to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
+[Deploy this function on flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps), and you will get a GitHub 🤖 to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
 
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
@@ -30,58 +30,33 @@ This flow function (or 🤖) will be triggered when a new PR is raised in the de
 * The code review comment is updated automatically every time a new commit is pushed to this PR.
 * A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
 
-### Deploy your own code review bot in 3 simple steps
+## Deploy your own code review bot in 3 simple steps
 
-1. Fork this repo to your own GitHub account. It contains the source code for the GitHub bot.
-2. Import the forked repo on [flows.network](https://flows.network/) as a flow function.
-3. Connect the flow function to the GitHub repo you want to deploy the bot on (using the [flows.network](https://flows.network/) UI). 
+1. Create a bot from a template
+2. Configure the bot to review PRs on a specified GitHub repo
+3. Authorize [flows.network](https://flows.network/) to access the GitHub repo
 
-<p align="center">
-  <a href="https://youtu.be/kvBhNBXmBaE" taregt=_blank><img src="https://img.youtube.com/vi/kvBhNBXmBaE/hqdefault.jpg"/></a><br/>
-  <i>Click on the picture above to watch a 3-min tutorial video</i>
-</p>
-
-## Prerequisites
+### 0 Prerequisites
 
 You will need to bring your own [OpenAI API key](https://openai.com/blog/openai-api). If you do not already have one, [sign up here](https://platform.openai.com/signup).
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
-## Deploy the PR review 🤖 onto your GitHub repos
+### 1 Create a bot from a template
 
-The 🤖 is designed to run on [flows.network](https://flows.network/), a serverless platform for SaaS and AI automation.
+[**Just click here**](https://flows.network/flow/createByTemplate/summarize-github-pull-requests)
 
-### 1 Fork this repo
+### 2 Configure the bot
 
-Fork [this repo](https://github.com/flows-network/github-pr-summary/) into your own GitHub account.
-
-> If your OpenAI API key has GPT4 access, you can change `GPT35Turbo` to `GPT4` in your fork of the source code. GPT4 provides substantially better code reviews, but it is also 10x more expensive.
-
-### 2 Deploy the bot's source code on flow.network
-
-Go to [flows.network](https://flows.network/) to deploy your own flow function (🤖) from the forked source code.
-
-1. Click on the "Create a Flow" button to start.
-2. Authenticate the [flows.network](https://flows.network/) to access the `github-pr-summary` repo you just forked. **NOTE: This is NOT the repo you want to install the bot on.**
-
-<img width="950" alt="image" src="https://user-images.githubusercontent.com/45785633/229329081-93728947-ad9f-44fb-85b1-067e6a0eb8ac.png">
-
-3. Click on the "Advanced" link to see more settings. Fill in the following environment variables. 
-
-> The 4 variables below are defined in the flow function's Rust source code. You can assign their values in the source code in your fork directly and skip the steps below.
-
-* `login`: Your personal GitHub id. The GitHub app will act as you when posting reviews.
-* `owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
-* `repo` : GitHub repo *you want to deploy the 🤖 on*.
+* `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
+* `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
 * `trigger_phrase`: Optional -- The magic phrase to trigger a review from a PR comment.
 
-> Let's see an example. You forked the flow function source code to `my-name/github-pr-summary` and would like to deploy the bot to summarize PRs on `my-company/work-project` repo. Here `login = my-name`, `owner = my-company` and `repo = work-project`.
+> Let's see an example. You would like to deploy the bot to summarize PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
 
-![image](https://user-images.githubusercontent.com/45785633/234774015-0a8de4be-17fd-4fe2-be31-ee7ed0e9b462.png)
+Click on the "Create and deploy" button.
 
-4. Click on the Deploy button.
-
-### 3 Configure integrations
+## 3 Authorize access
 
 After that, [flows.network](https://flows.network/) will direct you to configure the external services required by your flow function 🤖.
 
@@ -89,11 +64,11 @@ After that, [flows.network](https://flows.network/) will direct you to configure
 
 For this flow function, we need to configue two integrations.
 
-1. Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.
+Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
 
-2. Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. That is to give access to the `owner/repo` in the environment variables. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR or magic words (i.e., `trigger_phrase`) in PR comments.
 
