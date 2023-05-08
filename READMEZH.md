@@ -24,9 +24,9 @@
 这个机器人会总结PR中的提交信息。或者，您可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
 
 
-## 工作原理
+## 如何工作
 
-当在指定的GitHub存储库中创建新的PR时，此流程函数（或🤖）将被触发。流程函数会收集PR中的内容，并请求ChatGPT/4进行检查和总结。结果会作为评论发布回PR。流程函数是用Rust编写的，并在托管的[WasmEdge运行时](https://github.com/wasmedge)上在[flows.network](https://flows.network/)上运行。
+当在指定的GitHub repo中创建新的PR时，此 flow 函数（或🤖）将被触发。 flow 函数会收集PR中的内容，并请求ChatGPT/4进行检查和总结。结果会作为评论发布回PR。flow 函数是用Rust编写的，并在托管的[WasmEdge运行时](https://github.com/wasmedge)上在[flows.network](https://flows.network/)上运行。
 
 
 * 每次将新的提交推送到此PR时，都会自动更新代码检查评论。
@@ -35,16 +35,8 @@
 ## 在3个简单步骤中部署自己的代码检查机器人
 
 1. 从模板创建一个机器人
-2. 配置机器人以检查指定GitHub存储库中的PR
-3. 授权[flows.network](https://flows.network/)访问GitHub存储库
-
-
-## 如何使用
-
-当指定的 GitHub 存储库中有新的 PR 提交时，此流程函数（或🤖）将被触发。流程函数会收集 PR 中的内容，并请求 ChatGPT/4 对其进行评论和总结。结果将作为评论发布回 PR 中。流程函数使用 Rust 编写，并在托管在 [WasmEdge Runtimes](https://github.com/wasmedge) 上的 [flows.network](https://flows.network/) 上运行。
-
-* 代码检查评论将在每次提交新提交时自动更新到此 PR 上。
-* 可以通过在 PR 的评论部分说出魔法 *触发短语* 来触发新的代码检查。默认的触发短语是 "flows summarize"。
+2. 配置机器人以检查指定GitHub repo 中的PR
+3. 授权[flows.network](https://flows.network/)访问GitHub repo
 
 
 ### 0 先决条件
@@ -59,23 +51,23 @@
 
 ### 2 配置机器人
 
-* `github_owner`：GitHub 存储库的组织，您要在其上部署🤖。
-* `github_repo`：GitHub 存储库，您要在其上部署🤖。
+* `github_owner`：GitHub repo 的组织，您要在其上部署🤖。
+* `github_repo`：GitHub repo，您要在其上部署🤖。
 
->让我们看一个示例。您想要部署机器人以总结 `WasmEdge/wasmedge_hyper_demo` 存储库中的 PR。这里 `github_owner = WasmEdge`，`github_repo = wasmedge_hyper_demo`。
+>让我们看一个示例。您想要部署机器人以总结 `WasmEdge/wasmedge_hyper_demo` repo 中的 PR。这里 `github_owner = WasmEdge`，`github_repo = wasmedge_hyper_demo`。
 
-单击“创建和部署”按钮。
+单击“创建和部署（Create and deploy）”按钮。
 
 ## 3 授权访问
 
-## 此后，[flows.network](https://flows.network/) 将引导您配置您的流程函数 🤖 所需的外部服务。
+接下来，[flows.network](https://flows.network/) 将引导你配置你的 flow 函数 🤖 所需的外部服务。
 
 <img width="927" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">
-对于此流程函数，我们需要配置两个集成。
+对于此 flow 函数，我们需要配置两个集成。
 单击“连接”或“+ 添加新的身份验证”按钮以添加您的 OpenAI API 密钥。
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
-单击“连接”或“+ 添加新的身份验证”按钮，以使函数可以访问 GitHub 存储库以部署🤖。您将被重定向到一个新页面，您必须授予 [flows.network](https://flows.network/) 权限访问存储库。
-之后，单击“检查”按钮以转到流程详情页面。一旦流程的状态变为 `running`，PR 摘要 GitHub 机器人就可以开始进行代码检查。这个机器人会被每个新的PR和每个新的commit所召唤，以及在PR评论中出现的魔法词（即`trigger_phrase`）。
+单击“连接”或“+ 添加新的身份验证”按钮，以使函数可以访问 GitHub repo 以部署🤖。您将被重定向到一个新页面，您必须授予 [flows.network](https://flows.network/) 权限访问 repo。
+之后，单击“检查”按钮以转到 flow 详情页面。一旦 flow 的状态变为 `running`，PR 摘要 GitHub 机器人就可以开始进行代码检查。这个机器人会被每个新的PR和每个新的commit所召唤，以及在PR评论中出现的魔法词（即`trigger_phrase`）。
 
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
@@ -85,29 +77,29 @@
 
 ### 自定义机器人
 
-机器人的源代码可在您从模板克隆的 GitHub 存储库中找到。请随意更改源代码（例如，模型、上下文长度、API 密钥和提示），以适应您自己的需求。如果需要帮助，请在 [Discord 中询问](https://discord.gg/ccZn9ZMfFf)！
+机器人的源代码可在你从模板克隆的 GitHub repo 中找到。请随意更改源代码（例如，模型、上下文长度、API 密钥和提示），以适应你自己的需求。如果需要帮助，请在 [Discord 中询问](https://discord.gg/ccZn9ZMfFf)！
 
 
 ### 使用 GPT4
 
-默认情况下，该机器人使用 GPT3.5 进行代码审核。如果您的 OpenAI API 密钥可以访问 GPT4，则可以在克隆的源代码存储库中打开 `src/github-pr-review.rs` 文件，并在源代码中将 `GPT35Turbo` 更改为 `GPT4`。将更改提交并推送回 GitHub。flows.network 平台将自动检测并从您的更新的源代码重建机器人。
+默认情况下，该机器人使用 GPT3.5 进行代码审核。如果您的 OpenAI API 密钥可以访问 GPT4，则可以在克隆的源代码 repo 中打开 `src/github-pr-review.rs` 文件，并在源代码中将 `GPT35Turbo` 更改为 `GPT4`。将更改提交并推送回 GitHub。flows.network 平台将自动检测并从你的更新的源代码重建机器人。
 
 
-### 在多个存储库上使用机器人
+### 在多个 repo 上使用机器人
 
-您可以创建一个新的 flow，并导入机器人的源代码存储库（即您从模板克隆的存储库）。然后，您可以使用 flow 配置来指定 `github_owner` 和 `github_repo`，以指向您需要在其上部署机器人的目标存储库。部署并授权访问该目标存储库。
+你可以创建一个新的 flow，并导入机器人的源代码 repo（即您从模板克隆的 repo）。然后，您可以使用 flow 配置来指定 `github_owner` 和 `github_repo`，以指向你需要在其上部署机器人的目标repo。部署并授权访问该目标 repo。
 
-您可以针对您希望在其中部署此机器人的所有目标存储库重复此操作。
+您可以针对您希望在其中部署此机器人的所有目标 repo 重复此操作。
 
 
 ### 更改魔法短语
 
-进入机器人正在运行的 flow 功能的 "Settings" 选项卡，您可以更新 `trigger_phrase` 配置。该配置的值是用户将说的魔法短语，以触发 PR 评论的审查。
+进入机器人正在运行的 flow 函数的 "Settings" 选项卡，您可以更新 `trigger_phrase` 配置。该配置的值是用户将说的魔法短语，以触发 PR 评论的审查。
 
 
 ## 鸣谢
 
-此 flow 功能最初由 [Jay Chen](https://github.com/jaykchen) 创建，并且 [jinser](https://github.com/jetjinser) 为优化从 GitHub 触发器做出了重大贡献。
+此 flow 函数最初由 [Jay Chen](https://github.com/jaykchen) 创建，并且 [jinser](https://github.com/jetjinser) 为优化从 GitHub 触发器做出了重大贡献。
 
 
 
