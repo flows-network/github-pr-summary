@@ -21,6 +21,7 @@ static MODEL : ChatModel = ChatModel::GPT4;
 pub async fn run() -> anyhow::Result<()> {
     dotenv().ok();
     logger::init();
+    log::debug!("Running github-pr-summary/playground");
 
     let login = env::var("github_login").unwrap_or("juntao".to_string());
     let owner = env::var("github_owner").unwrap_or("juntao".to_string());
@@ -52,9 +53,10 @@ async fn handler(
     let (pull_url, issue_number, _contributor) = match payload {
         EventPayload::IssueCommentEvent(e) => {
             if e.action == IssueCommentEventAction::Deleted {
-                log::info!("Deleted issue event");
+                log::debug!("Deleted issue comment");
                 return;
             }
+            log::debug!("Other event for issue comment");
 
             let body = e.comment.body.unwrap_or_default();
 
@@ -132,6 +134,7 @@ async fn handler(
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
         let commit_hash = &commit[5..45];
+        log::debug!("Sending patch to OpenAI: {}", commit_hash);
         let co = ChatOptions {
             model: MODEL,
             restart: true,
@@ -151,6 +154,7 @@ async fn handler(
                 review.push_str(&r.choice);
                 review.push_str("\n\n");
                 reviews.push(review);
+                log::debug!("Received OpenAI resp for patch: {}", commit_hash);
             }
             Err(e) => {
                 log::error!("OpenAI returned an error for commit {commit_hash}: {}", e);
@@ -161,6 +165,7 @@ async fn handler(
     let mut resp = String::new();
     resp.push_str("Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
+        log::debug!("Sending all reviews to OpenAI for summarization");
         let co = ChatOptions {
             model: MODEL,
             restart: true,
@@ -172,6 +177,7 @@ async fn handler(
             Ok(r) => {
                 resp.push_str(&r.choice);
                 resp.push_str("\n\n## Details\n\n");
+                log::debug!("Received the overall summary");
             }
             Err(e) => {
                 log::error!("OpenAI returned an error for the overall summary: {}", e);
