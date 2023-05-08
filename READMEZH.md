@@ -12,7 +12,7 @@
   </a>
 </p>
 
-[部署此函数到flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps)，您将获得一个GitHub机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解和作出对PR的决定!下面是一些示例! 
+[部署此函数到flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps)，你将获得一个GitHub机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解和作出对PR的决定!下面是一些示例! 
 
 * [[Rust] 支持WasmEdge Rust SDK中的主机函数](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] 支持WasmEdge安装程序中的ARM体系结构](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
@@ -21,7 +21,7 @@
 
 > 还有疑虑? ”，[请见本评论中的“潜在问题1](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust算法的低效实现。🤯 
 
-这个机器人会总结PR中的提交信息。或者，您可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
+这个机器人会总结PR中的提交信息。或者，可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
 
 
 ## 如何工作
@@ -41,9 +41,9 @@
 
 ### 0 先决条件
 
-### 您需要使用自己的 [OpenAI API 密钥](https://openai.com/blog/openai-api)。如果您还没有，请[在此处注册](https://platform.openai.com/signup)。
+### 需要使用自己的 [OpenAI API 密钥](https://openai.com/blog/openai-api)。如果还没有注册，请[在此处注册](https://platform.openai.com/signup)。
 
-您还需要使用 GitHub 帐户登录 [flows.network](https://flows.network/)。这是免费的。
+还需要使用 GitHub 帐户登录 [flows.network](https://flows.network/)。这是免费的。
 
 ### 1 从模板创建机器人
 
@@ -51,10 +51,10 @@
 
 ### 2 配置机器人
 
-* `github_owner`：GitHub repo 的组织，您要在其上部署🤖。
-* `github_repo`：GitHub repo，您要在其上部署🤖。
+* `github_owner`：你想在其上部署🤖 的 GitHub repo 的组织。
+* `github_repo`：，你想在其上部署🤖 的 GitHub repo。
 
->让我们看一个示例。您想要部署机器人以总结 `WasmEdge/wasmedge_hyper_demo` repo 中的 PR。这里 `github_owner = WasmEdge`，`github_repo = wasmedge_hyper_demo`。
+>让我们看一个示例。想要部署机器人从而总结 `WasmEdge/wasmedge_hyper_demo` repo 中的 PR。这里 `github_owner = WasmEdge`，`github_repo = wasmedge_hyper_demo`。
 
 单击“创建和部署（Create and deploy）”按钮。
 
@@ -64,9 +64,10 @@
 
 <img width="927" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">
 对于此 flow 函数，我们需要配置两个集成。
-单击“连接”或“+ 添加新的身份验证”按钮以添加您的 OpenAI API 密钥。
+单击“连接”或“+ 添加新的身份验证”按钮以添加你的 OpenAI API 密钥。
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
-单击“连接”或“+ 添加新的身份验证”按钮，以使函数可以访问 GitHub repo 以部署🤖。您将被重定向到一个新页面，您必须授予 [flows.network](https://flows.network/) 权限访问 repo。
+单击“连接”或“+ 添加新的身份验证”按钮，以使函数可以访问 GitHub repo 以部署🤖。你将被重定向到一个新页面，需要给 [flows.network](https://flows.network/) 授予访问 repo 的权限。
+
 之后，单击“检查”按钮以转到 flow 详情页面。一旦 flow 的状态变为 `running`，PR 摘要 GitHub 机器人就可以开始进行代码检查。这个机器人会被每个新的PR和每个新的commit所召唤，以及在PR评论中出现的魔法词（即`trigger_phrase`）。
 
 
@@ -82,24 +83,24 @@
 
 ### 使用 GPT4
 
-默认情况下，该机器人使用 GPT3.5 进行代码审核。如果您的 OpenAI API 密钥可以访问 GPT4，则可以在克隆的源代码 repo 中打开 `src/github-pr-review.rs` 文件，并在源代码中将 `GPT35Turbo` 更改为 `GPT4`。将更改提交并推送回 GitHub。flows.network 平台将自动检测并从你的更新的源代码重建机器人。
+默认情况下，该机器人使用 GPT3.5 进行代码审核。如果你的 OpenAI API 密钥可以访问 GPT4，则可以在克隆的源代码 repo 中打开 `src/github-pr-review.rs` 文件，并在源代码中将 `GPT35Turbo` 更改为 `GPT4`。将更改提交并推送回 GitHub。flows.network 平台将自动检测并从你的更新的源代码重建机器人。
 
 
 ### 在多个 repo 上使用机器人
 
-你可以创建一个新的 flow，并导入机器人的源代码 repo（即您从模板克隆的 repo）。然后，您可以使用 flow 配置来指定 `github_owner` 和 `github_repo`，以指向你需要在其上部署机器人的目标repo。部署并授权访问该目标 repo。
+你可以创建一个新的 flow，并导入机器人的源代码 repo（即你从模板克隆的 repo）。然后，可以使用 flow 配置来指定 `github_owner` 和 `github_repo`，以指向你需要在其上部署机器人的目标repo。部署并授权访问该目标 repo。
 
-您可以针对您希望在其中部署此机器人的所有目标 repo 重复此操作。
+可以针对你希望在其中部署此机器人的所有目标 repo 重复此操作。
 
 
 ### 更改魔法短语
 
-进入机器人正在运行的 flow 函数的 "Settings" 选项卡，您可以更新 `trigger_phrase` 配置。该配置的值是用户将说的魔法短语，以触发 PR 评论的审查。
+进入机器人正在运行的 flow 函数的 "Settings" 选项卡，你可以更新 `trigger_phrase` 配置。该配置的值是用户会说的魔法短语，可以从 PR 评论触发检查。
 
 
 ## 鸣谢
 
-此 flow 函数最初由 [Jay Chen](https://github.com/jaykchen) 创建，并且 [jinser](https://github.com/jetjinser) 为优化从 GitHub 触发器做出了重大贡献。
+此 flow 函数最初由 [Jay Chen](https://github.com/jaykchen) 创建，[jinser](https://github.com/jetjinser) 为优化来自 GitHub 的事件触发器做出了重大贡献。
 
 
 
