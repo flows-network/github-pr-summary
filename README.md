@@ -75,9 +75,15 @@ After that, click on the "Check" button to go to the flow details page. As soon 
 
 ## FAQ
 
-### Change the magic phrase
+### Customize the bot
 
-Go to the "Settings" tab of the running flow function for the bot, you can add an optional `trigger_phrase` config. The value of this config is the magic phrase the user will say to trigger a review from a PR comment.
+The bot's source code is available in the GitHub repo you cloned from the template. Feel free to make changes to the source code (e.g., model, context length, API key and prompts) to fit your own needs. If you need help, [ask in Discord](https://discord.gg/ccZn9ZMfFf)!
+
+### Use GPT4
+
+By default, the bot uses GPT3.5 for code review. If your OpenAI API key has access to GPT4, you can open the `src/github-pr-review.rs` file
+in your cloned source code repo, and change `GPT35Turbo` to `GPT4` in the source code. Commit and push the change back to GitHub.
+The flows.network platform will automatically detect and rebuild the bot from your updated source code.
 
 ### Use the bot on multiple repos
 
@@ -85,9 +91,9 @@ You can create a new flow and import the source code repo for the bot (i.e., the
 
 You can repeat this for all target repos you would like to deploy this bot on.
 
-### Customize the bot
+### Change the magic phrase
 
-The bot's source code is available in the GitHub repo you cloned from the template. Feel free to make changes to the source code (e.g., model, context length, API key and prompts) to fit your own needs. If you need help, [ask in Discord](https://discord.gg/ccZn9ZMfFf)!
+Go to the "Settings" tab of the running flow function for the bot, you can update the `trigger_phrase` config. The value of this config is the magic phrase the user will say to trigger a review from a PR comment.
 
 ## Credits
 
