@@ -12,7 +12,7 @@
   </a>
 </p>
 
-[部署此函数到flows.network，您将获得一个GitHub机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解和作出对PR的决定!下面是一些示例! 
+[部署此函数到flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps)，您将获得一个GitHub机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解和作出对PR的决定!下面是一些示例! 
 
 * [[Rust] 支持WasmEdge Rust SDK中的主机函数](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] 支持WasmEdge安装程序中的ARM体系结构](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
