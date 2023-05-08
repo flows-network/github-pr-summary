@@ -21,15 +21,31 @@
 
 > 还有疑虑? ”，[请见本评论中的“潜在问题1](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust算法的低效实现。🤯 
 
-此机器人总结PR中的提交。或者您可以使用此机器人审查PR中的更改文件。
+这个机器人会总结PR中的提交信息。或者，您可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
+
+
+## 工作原理
+
+当在指定的GitHub存储库中创建新的PR时，此流程函数（或🤖）将被触发。流程函数会收集PR中的内容，并请求ChatGPT/4进行检查和总结。结果会作为评论发布回PR。流程函数是用Rust编写的，并在托管的[WasmEdge运行时](https://github.com/wasmedge)上在[flows.network](https://flows.network/)上运行。
+
+
+* 每次将新的提交推送到此PR时，都会自动更新代码检查评论。
+* 当有人在PR的注释部分中说出一个魔术*触发短语*时，可以触发新的代码检查。默认的触发短语是"flows summarize"。
+
+## 在3个简单步骤中部署自己的代码检查机器人
+
+1. 从模板创建一个机器人
+2. 配置机器人以检查指定GitHub存储库中的PR
+3. 授权[flows.network](https://flows.network/)访问GitHub存储库
 
 
 ## 如何使用
 
 当指定的 GitHub 存储库中有新的 PR 提交时，此流程函数（或🤖）将被触发。流程函数会收集 PR 中的内容，并请求 ChatGPT/4 对其进行评论和总结。结果将作为评论发布回 PR 中。流程函数使用 Rust 编写，并在托管在 [WasmEdge Runtimes](https://github.com/wasmedge) 上的 [flows.network](https://flows.network/) 上运行。
 
-* 代码审查评论将在每次提交新提交时自动更新到此 PR 上。
-* 可以通过在 PR 的评论部分说出魔法 *触发短语* 来触发新的代码审查。默认的触发短语是 "flows summarize"。
+* 代码检查评论将在每次提交新提交时自动更新到此 PR 上。
+* 可以通过在 PR 的评论部分说出魔法 *触发短语* 来触发新的代码检查。默认的触发短语是 "flows summarize"。
+
 
 ### 0 先决条件
 
