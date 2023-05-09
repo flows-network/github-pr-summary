@@ -12,25 +12,25 @@
   </a>
 </p>
 
-[部署此函数到flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps)，你将获得一个GitHub机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解和作出对PR的决定!下面是一些示例! 
+[部署此函数到 flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps)，你将获得一个 GitHub 机器人来检查代码和总结拉取请求。它可以帮助忙碌的开源贡献者更快地理解并对 PR 采取行动!下面是一些示例! 
 
 * [[Rust] 支持WasmEdge Rust SDK中的主机函数](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] 支持WasmEdge安装程序中的ARM体系结构](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
 * [[C++] 为WasmEdge添加eBPF插件](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
 * [[Haskell] 改进WasmEdge组件模型工具的CLI实用程序](https://github.com/second-state/witc/pull/73#issuecomment-1507539260)
 
-> 还没被惊艳到吗？[请见此处 bot 指出的“潜在问题1”](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust算法的低效实现。🤯 
+> 还没被惊艳到吗？[请见此处 bot 指出的“潜在问题1”](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust 算法的低效实现。🤯 
 
 这个机器人会总结PR中的提交信息。或者，可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
 
 
 ## 如何工作
 
-当在指定的GitHub repo中创建新的PR时，此 flow 函数（或🤖）将被触发。 flow 函数会收集PR中的内容，并请求ChatGPT/4进行检查和总结。结果会作为评论发布回PR。flow 函数是用Rust编写的，并在托管的[WasmEdge运行时](https://github.com/wasmedge)上在[flows.network](https://flows.network/)上运行。
+当在指定的 GitHub repo中创建新的PR时，此 flow 函数（或🤖）将被触发。 flow 函数会收集PR中的内容，并请求 ChatGPT/4 进行检查和总结。结果会作为评论发布回 PR。flow 函数是用Rust编写的，并在托管的[WasmEdge运行时](https://github.com/wasmedge)上在[flows.network](https://flows.network/)上运行。
 
 
-* 每次将新的提交推送到此PR时，都会自动更新代码检查评论。
-* 当有人在PR的注释部分中说出一个魔术*触发短语*时，可以触发新的代码检查。默认的触发短语是"flows summarize"。
+* 每次将新的提交推送到此 PR 时，都会自动更新代码检查评论。
+* 当有人在PR的注释部分中说出一个魔术*触发词*时，可以触发新的代码检查。默认的触发词是"flows summarize"。
 
 ## 在3个简单步骤中部署自己的代码检查机器人
 
