@@ -51,7 +51,7 @@
 ### 2 配置机器人
 
 * `github_owner`：你想在其上部署🤖 的 GitHub repo 的组织。
-* `github_repo`：，你想在其上部署🤖 的 GitHub repo。
+* `github_repo`：你想在其上部署🤖 的 GitHub repo。
 
 >让我们看一个示例。你想要部署机器人从而总结 `WasmEdge/wasmedge_hyper_demo` repo 中的 PR。这里 `github_owner = WasmEdge`，`github_repo = wasmedge_hyper_demo`。
 
