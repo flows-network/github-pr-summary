@@ -1,3 +1,9 @@
+<div style="text-align: right">
+
+[In English](https://github.com/flows-network/github-pr-summary/blob/main/README.md)
+
+</div>
+
 # <p align="center">ChatGPT/4 加成的 Github PR 检查机器人</p>
 
 <p align="center">
