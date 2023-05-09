@@ -19,7 +19,7 @@
 * [[C++] 为WasmEdge添加eBPF插件](https://github.com/WasmEdge/WasmEdge/pull/2314#issuecomment-1497861516)
 * [[Haskell] 改进WasmEdge组件模型工具的CLI实用程序](https://github.com/second-state/witc/pull/73#issuecomment-1507539260)
 
-> 还有疑虑? ”，[请见本评论中的“潜在问题1](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust算法的低效实现。🤯 
+> 还没被惊艳到吗？[请见此处 bot 指出的“潜在问题1”](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630)，它识别出了 Rust算法的低效实现。🤯 
 
 这个机器人会总结PR中的提交信息。或者，可以使用[这个机器人](https://github.com/flows-network/github-pr-review)来检查PR中更改的文件。
 
