@@ -27,7 +27,7 @@
 
 > Still not convinced? [See "potential problems 1" in this review](https://github.com/second-state/wasmedge-quickjs/pull/82#issuecomment-1498299630), it identified an inefficient Rust implementation of an algorithm. 🤯
 
-This bot summarizes commits in the PR. Alternatively, you can use [this bot](https://github.com/flows-network/github-pr-review) to review changed files in the PR. 
+This bot **summarizes commits in the PR**. Alternatively, you can use [this bot](https://github.com/flows-network/github-pr-review) to review changed files in the PR. 
 
 ## How it works
 
@@ -76,6 +76,9 @@ Click on the "Connect" or "+ Add new authentication" button to add your OpenAI A
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
 
 Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+
+[<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473">](https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473)
+
 
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
 
