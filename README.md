@@ -57,7 +57,9 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 * `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
 * `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
 
-> Let's see an example. You would like to deploy the bot to summarize PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
+> Let's see an example. You would like to deploy the bot to summarize PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`. See an example below.
+
+[<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/011d1dc9-c540-4318-af57-834d6278c2dc">](https://github.com/flows-network/github-pr-summary/assets/45785633/011d1dc9-c540-4318-af57-834d6278c2dc)
 
 Click on the "Create and deploy" button.
 
@@ -65,19 +67,19 @@ Click on the "Create and deploy" button.
 
 After that, [flows.network](https://flows.network/) will direct you to configure the external services required by your flow function 🤖.
 
-<img width="927" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">
+[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">](https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png)
 
 For this flow function, we need to configue two integrations.
 
 Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.
 
-<img width="758" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">
+[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
 
 Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
 After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
 
-<img width="1148" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">
+[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">](https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png)
 
 ## FAQ
 
