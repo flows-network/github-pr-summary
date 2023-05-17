@@ -39,8 +39,8 @@ This flow function (or 🤖) will be triggered when a new PR is raised in the de
 ## Deploy your own code review bot in 3 simple steps
 
 1. Create a bot from a template
-2. Configure the bot to review PRs on a specified GitHub repo
-3. Authorize [flows.network](https://flows.network/) to access the GitHub repo
+2. Add your OpenAI API key
+3. Configure the bot to review PRs on a specified GitHub repo
 
 ### 0 Prerequisites
 
@@ -50,37 +50,38 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 ### 1 Create a bot from a template
 
-[**Just click here**](https://flows.network/flow/createByTemplate/summarize-github-pull-requests)
+[**Just click here**](https://flows.network/flow/createByTemplate/Pull%20Request%20Summary%20Bot)
 
-### 2 Configure the bot
+Review the `trigger_phrase` variable. It is the magic words you type in a PR comment to manually summon the review bot.
+
+Click on the "Create and Deploy" button.
+
+### 2 Add your OpenAI API key
+
+In the next screen, you will set up OpenAI integration. Click on "Connect", enter your key and give it a name.
+
+[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
+
+Close the tab and go back to the flow.network page once you are done. Click on "Next".
+
+### 3 Configure the bot to access GitHub
+
+In this screen, you will tell the bot which GitHub repo it needs to monitor for upcoming PRs to review.
 
 * `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
 * `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
 
-> Let's see an example. You would like to deploy the bot to summarize PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`. See an example below.
-
-[<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/011d1dc9-c540-4318-af57-834d6278c2dc">](https://github.com/flows-network/github-pr-summary/assets/45785633/011d1dc9-c540-4318-af57-834d6278c2dc)
-
-Click on the "Create and deploy" button.
-
-## 3 Authorize access
-
-After that, [flows.network](https://flows.network/) will direct you to configure the external services required by your flow function 🤖.
-
-[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png">](https://user-images.githubusercontent.com/45785633/229329158-5ba162a6-1f06-4851-ad46-583840dd6891.png)
-
-For this flow function, we need to configue two integrations.
-
-Click on the "Connect" or "+ Add new authentication" button to add your OpenAI API key.
-
-[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
+> Let's see an example. You would like to deploy the bot to review code in PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
 
 Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
 [<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473">](https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473)
 
+Close the tab and go back to the flow.network page once you are done. Click on "Check".
 
-After that, click on the "Check" button to go to the flow details page. As soon as the flow's status became `running`, the PR summary GitHub bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
+### Wait for the magic!
+
+This is it! You are now on the flow details page waiting for the flow function to build. As soon as the flow's status became `running`, the bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
 
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">](https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png)
 
@@ -98,9 +99,11 @@ The flows.network platform will automatically detect and rebuild the bot from yo
 
 ### Use the bot on multiple repos
 
-You can create a new flow and import the source code repo for the bot (i.e., the repo you cloned from the template). Then, you can use the flow config to specify the `github_owner` and `github_repo` to point to the target repo you need to deploy the bot on. Deploy and authorize access to that target repo.
+You can [mannually create a new flow](https://flows.network/flow/new) and import the source code repo for the bot (i.e., the repo you cloned from the template). Then, you can use the flow config to specify the `github_owner` and `github_repo` to point to the target repo you need to deploy the bot on. Deploy and authorize access to that target repo.
 
 You can repeat this for all target repos you would like to deploy this bot on.
+
+> You could have a single flow function repo deployed as the source code for multiple bots. When you update the source code in the repo, and push it to GitHub, it will change the behavior of all the bots.
 
 ### Change the magic phrase
 
