@@ -54,15 +54,15 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 Review the `trigger_phrase` variable. It is the magic words you type in a PR comment to manually summon the review bot.
 
-Click on the "Create and Deploy" button.
+Click on the **Create and Deploy** button.
 
 ### 2 Add your OpenAI API key
 
-You will now set up OpenAI integration. Click on "Connect", enter your key and give it a name.
+You will now set up OpenAI integration. Click on **Connect**, enter your key and give it a name.
 
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
 
-Close the tab and go back to the flow.network page once you are done. Click on "Continue".
+Close the tab and go back to the flow.network page once you are done. Click on **Continue**.
 
 ### 3 Configure the bot to access GitHub
 
@@ -73,11 +73,11 @@ Next, you will tell the bot which GitHub repo it needs to monitor for upcoming P
 
 > Let's see an example. You would like to deploy the bot to review code in PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
 
-Click on the "Connect" or "+ Add new authentication" button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+Click on the **Connect** or **+ Add new authentication** button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
 
 [<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473">](https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473)
 
-Close the tab and go back to the flow.network page once you are done. Click on "Check".
+Close the tab and go back to the flow.network page once you are done. Click on **Check**.
 
 ### Wait for the magic!
 
