@@ -58,15 +58,15 @@ Click on the "Create and Deploy" button.
 
 ### 2 Add your OpenAI API key
 
-In the next screen, you will set up OpenAI integration. Click on "Connect", enter your key and give it a name.
+You will now set up OpenAI integration. Click on "Connect", enter your key and give it a name.
 
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
 
-Close the tab and go back to the flow.network page once you are done. Click on "Next".
+Close the tab and go back to the flow.network page once you are done. Click on "Continue".
 
 ### 3 Configure the bot to access GitHub
 
-In this screen, you will tell the bot which GitHub repo it needs to monitor for upcoming PRs to review.
+Next, you will tell the bot which GitHub repo it needs to monitor for upcoming PRs to review.
 
 * `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
 * `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
