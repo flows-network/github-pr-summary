@@ -50,7 +50,7 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 ### 1 Create a bot from a template
 
-[**Just click here**](https://flows.network/flow/createByTemplate/Pull%20Request%20Summary%20Bot)
+[**Just click here**](https://flows.network/flow/createByTemplate/Summarize-Pull-Request)
 
 Review the `trigger_phrase` variable. It is the magic words you type in a PR comment to manually summon the review bot.
 
