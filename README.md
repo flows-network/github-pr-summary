@@ -54,7 +54,7 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 Review the `trigger_phrase` variable. It is the magic words you type in a PR comment to manually summon the review bot.
 
-Click on the **Create and Deploy** button.
+Click on the **Create and Build** button.
 
 ### 2 Add your OpenAI API key
 
@@ -77,7 +77,7 @@ Click on the **Connect** or **+ Add new authentication** button to give the func
 
 [<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473">](https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473)
 
-Close the tab and go back to the flow.network page once you are done. Click on **Check**.
+Close the tab and go back to the flow.network page once you are done. Click on **Deploy**.
 
 ### Wait for the magic!
 
