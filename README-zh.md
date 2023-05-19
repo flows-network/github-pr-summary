@@ -77,7 +77,7 @@
 * `github_owner`:  *你想要为 repo 部署 🤖 的* GitHub org
 * `github_repo` :  *你想部署 🤖 的* GitHub repo
 
-> 让我们看一个例子。您想要部署机器人来审查`WasmEdge/wasmedge_hyper_demo` repo 中的PR代码。这里 `github_owner = WasmEdge` 且 `github_repo = wasmedge_hyper_demo`。
+> 让我们看一个例子。您想要部署机器人来检查`WasmEdge/wasmedge_hyper_demo` repo 中的PR代码。这里 `github_owner = WasmEdge` 且 `github_repo = wasmedge_hyper_demo`。
 
 点击 **Connect** 或 **+ Add new authentication** 按钮，以使函数可以访问 GitHub repo 并部署🤖️。你将被重定向到一个新页面，在此页面须授予 [flows.network](https://flows.network/) 对该 repo 的权限。
 
@@ -85,7 +85,8 @@
 
 完成后请关闭标签页并返回 flow.network 页面。点击 **Deploy**.
 
-这就好了！你现在处在流程详细信息页面，正在等待 flow 函数构建。一旦流程状态变为 `运行中`，机器人就准备好进行代码审查了！每个新PR、每个新提交以及PR评论中的魔法词（即`trigger_phrase`），都会召唤机器人。
+这就好了！你现在处在 flow 详细信息页面，正在等待 flow 函数构建。一旦 flow 
+状态变为 `运行中`，机器人就准备好进行代码检查了！每个新PR、每个新提交以及PR评论中的魔法词（即`trigger_phrase`），都会召唤机器人。
 
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">](https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png)
 
