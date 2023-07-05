@@ -99,7 +99,7 @@ The flows.network platform will automatically detect and rebuild the bot from yo
 
 ### Use the bot on multiple repos
 
-You can [mannually create a new flow](https://flows.network/flow/new) and import the source code repo for the bot (i.e., the repo you cloned from the template). Then, you can use the flow config to specify the `github_owner` and `github_repo` to point to the target repo you need to deploy the bot on. Deploy and authorize access to that target repo.
+You can [manually create a new flow](https://flows.network/flow/new) and import the source code repo for the bot (i.e., the repo you cloned from the template). Then, you can use the flow config to specify the `github_owner` and `github_repo` to point to the target repo you need to deploy the bot on. Deploy and authorize access to that target repo.
 
 You can repeat this for all target repos you would like to deploy this bot on.
 
