@@ -14,8 +14,8 @@ use llmservice_flows::{
 use std::env;
 
 //  The soft character limit of the input context size
-//  THe codestral has a context length of 32k, and we allow 8k context here
-static CHAR_SOFT_LIMIT : usize = 8192;
+//  THe codestral has a context length of 16k tokens, and we allow 16k chars of context here
+static CHAR_SOFT_LIMIT : usize = 16384;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -89,7 +89,7 @@ async fn handler(payload: EventPayload) {
             //     return;
             // }
             // TODO: Makeshift but operational
-            if body.starts_with("Hello, I am a [code review bot]") {
+            if body.starts_with("Hello, I am a [PR summary bot]") {
                 log::info!("Ignore comment via bot");
                 return;
             };
@@ -108,11 +108,11 @@ async fn handler(payload: EventPayload) {
     let issues = octo.issues(owner.clone(), repo.clone());
     let mut comment_id: CommentId = 0u64.into();
     if new_commit {
-        // Find the first "Hello, I am a [code review bot]" comment to update
+        // Find the first "Hello, I am a [PR summary bot]" comment to update
         match issues.list_comments(pull_number).send().await {
             Ok(comments) => {
                 for c in comments.items {
-                    if c.body.unwrap_or_default().starts_with("Hello, I am a [code review bot]") {
+                    if c.body.unwrap_or_default().starts_with("Hello, I am a [PR summary bot]") {
                         comment_id = c.id;
                         break;
                     }
@@ -125,7 +125,7 @@ async fn handler(payload: EventPayload) {
         }
     } else {
         // PR OPEN or Trigger phrase: create a new comment
-        match issues.create_comment(pull_number, "Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
+        match issues.create_comment(pull_number, "Hello, I am a [PR summary bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
             Ok(comment) => {
                 comment_id = comment.id;
             }
@@ -168,22 +168,22 @@ async fn handler(payload: EventPayload) {
     }
 
     let chat_id = format!("PR#{pull_number}");
-    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\".", title);
+    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\". Please be as concise as possible while being accurate.", title);
     let mut lf = LLMServiceFlows::new(&llm_api_endpoint);
-    lf.set_retry_times(3);
+    // lf.set_retry_times(3);
 
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
     for (_i, commit) in commits.iter().enumerate() {
         let commit_hash = &commit[5..45];
-        log::debug!("Sending patch to OpenAI: {}", commit_hash);
+        log::debug!("Sending patch to LLM: {}", commit_hash);
         let co = ChatOptions {
             model: Some(&llm_model_name),
             restart: true,
             system_prompt: Some(system),
             ..Default::default()
         };
-        let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
+        let question = "The following is a GitHub patch. Please summarize the key changes in concise points. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
                 if reviews_text.len() < CHAR_SOFT_LIMIT {
@@ -196,25 +196,25 @@ async fn handler(payload: EventPayload) {
                 review.push_str(&r.choice);
                 review.push_str("\n\n");
                 reviews.push(review);
-                log::debug!("Received OpenAI resp for patch: {}", commit_hash);
+                log::debug!("Received LLM resp for patch: {}", commit_hash);
             }
             Err(e) => {
-                log::error!("OpenAI returned an error for commit {commit_hash}: {}", e);
+                log::error!("LLM returned an error for commit {commit_hash}: {}", e);
             }
         }
     }
 
     let mut resp = String::new();
-    resp.push_str("Hello, I am a [code review bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
+    resp.push_str("Hello, I am a [PR summary bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
-        log::debug!("Sending all reviews to OpenAI for summarization");
+        log::debug!("Sending all reviews to LLM for summarization");
         let co = ChatOptions {
             model: Some(&llm_model_name),
             restart: true,
             system_prompt: Some(system),
             ..Default::default()
         };
-        let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
+        let question = "Here is a set of summaries for source code patches in this PR. Each summary starts with a ------ line. Write an overall summary. Present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
                 resp.push_str(&r.choice);
@@ -222,7 +222,7 @@ async fn handler(payload: EventPayload) {
                 log::debug!("Received the overall summary");
             }
             Err(e) => {
-                log::error!("OpenAI returned an error for the overall summary: {}", e);
+                log::error!("LLM returned an error for the overall summary: {}", e);
             }
         }
     }
