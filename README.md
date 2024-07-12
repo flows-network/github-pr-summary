@@ -36,15 +36,12 @@ This flow function (or 🤖) will be triggered when a new PR is raised in the de
 * The code review comment is updated automatically every time a new commit is pushed to this PR.
 * A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
 
-## Deploy your own code review bot in 3 simple steps
+## Deploy your own code review bot in 2 simple steps
 
 1. Create a bot from a template
-2. Add your OpenAI API key
-3. Configure the bot to review PRs on a specified GitHub repo
+2. Configure the bot to review PRs on a specified GitHub repo
 
 ### 0 Prerequisites
-
-You will need to bring your own [OpenAI API key](https://openai.com/blog/openai-api). If you do not already have one, [sign up here](https://platform.openai.com/signup).
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
@@ -56,15 +53,7 @@ Review the `trigger_phrase` variable. It is the magic words you type in a PR com
 
 Click on the **Create and Build** button.
 
-### 2 Add your OpenAI API key
-
-You will now set up OpenAI integration. Click on **Connect**, enter your key and give it a name.
-
-[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png">](https://user-images.githubusercontent.com/45785633/222973214-ecd052dc-72c2-4711-90ec-db1ec9d5f24e.png)
-
-Close the tab and go back to the flow.network page once you are done. Click on **Continue**.
-
-### 3 Configure the bot to access GitHub
+### 2 Configure the bot to access GitHub
 
 Next, you will tell the bot which GitHub repo it needs to monitor for upcoming PRs to review.
 
@@ -86,16 +75,6 @@ This is it! You are now on the flow details page waiting for the flow function t
 [<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">](https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png)
 
 ## FAQ
-
-### Customize the bot
-
-The bot's source code is available in the GitHub repo you cloned from the template. Feel free to make changes to the source code (e.g., model, context length, API key and prompts) to fit your own needs. If you need help, [ask in Discord](https://discord.gg/ccZn9ZMfFf)!
-
-### Use GPT4
-
-By default, the bot uses GPT3.5 for code review. If your OpenAI API key has access to GPT4, you can open the `src/github-pr-review.rs` file
-in your cloned source code repo, and change `GPT35Turbo` to `GPT4` in the source code. Commit and push the change back to GitHub.
-The flows.network platform will automatically detect and rebuild the bot from your updated source code.
 
 ### Use the bot on multiple repos
 

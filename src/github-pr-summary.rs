@@ -1,55 +1,62 @@
 use dotenv::dotenv;
 use flowsnet_platform_sdk::logger;
 use github_flows::{
-    get_octo, listen_to_event,
-    octocrab::models::events::payload::{IssueCommentEventAction, PullRequestEventAction},
+    event_handler, get_octo, listen_to_event,
+    // octocrab::models::{events::payload::EventPayload, reactions::ReactionContent},
+    octocrab::models::events::payload::{EventPayload, IssueCommentEventAction, PullRequestEventAction},
     octocrab::models::CommentId,
-    EventPayload, GithubLogin
+    GithubLogin,
 };
-use openai_flows::{
-    chat::{ChatModel, ChatOptions},
-    OpenAIFlows,
+use llmservice_flows::{
+    chat::{ChatOptions},
+    LLMServiceFlows,
 };
 use std::env;
 
 //  The soft character limit of the input context size
-//   the max token size or word count for GPT4 is 8192
-//   the max token size or word count for GPT35Turbo is 4096
-static CHAR_SOFT_LIMIT : usize = 9000;
-static MODEL : ChatModel = ChatModel::GPT35Turbo;
-// static MODEL : ChatModel = ChatModel::GPT4;
+//  THe codestral has a context length of 32k, and we allow 8k context here
+static CHAR_SOFT_LIMIT : usize = 8192;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
-pub async fn run() -> anyhow::Result<()> {
+pub async fn on_deploy() {
     dotenv().ok();
     logger::init();
     log::debug!("Running github-pr-summary/main");
 
     let owner = env::var("github_owner").unwrap_or("juntao".to_string());
     let repo = env::var("github_repo").unwrap_or("test".to_string());
-    let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
 
-    let events = vec!["pull_request", "issue_comment"];
-    listen_to_event(&GithubLogin::Default, &owner, &repo, events, |payload| {
-        handler(
-            &owner,
-            &repo,
-            &trigger_phrase,
-            payload,
-        )
-    })
-    .await;
-
-    Ok(())
+    listen_to_event(&GithubLogin::Provided(owner.clone()), &owner, &repo, vec!["pull_request", "issue_comment"]).await;
 }
 
-async fn handler(
-    owner: &str,
-    repo: &str,
-    trigger_phrase: &str,
-    payload: EventPayload,
-) {
+#[event_handler]
+async fn handler(payload: EventPayload) {
+    dotenv().ok();
+    logger::init();
+    log::debug!("Running github-pr-summary/main handler()");
+
+    let owner = env::var("github_owner").unwrap_or("juntao".to_string());
+    let repo = env::var("github_repo").unwrap_or("test".to_string());
+    let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
+    let llm_api_endpoint = env::var("llm_api_endpoint").unwrap_or("https://codestral-01-22b.us.gaianet.network/v1".to_string());
+    let llm_model_name = env::var("llm_model_name").unwrap_or("Codestral-22B-v0.1-hf-Q5_K_M".to_string());
+
+    /*
+    if let EventPayload::IssueCommentEvent(e) = payload {
+        let comment_id = e.comment.id.0;
+
+        // installed app login
+        let octo = get_octo(&GithubLogin::Provided(String::from("some_login")));
+
+        let _reaction = octo
+            .issues("some_owner", "some_repo")
+            .create_comment_reaction(comment_id, ReactionContent::Rocket)
+            .await
+            .unwrap();
+    };
+    */
+
     let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
         EventPayload::PullRequestEvent(e) => {
@@ -97,8 +104,8 @@ async fn handler(
         _ => return,
     };
 
-    let octo = get_octo(&GithubLogin::Default);
-    let issues = octo.issues(owner, repo);
+    let octo = get_octo(&GithubLogin::Provided(owner.clone()));
+    let issues = octo.issues(owner.clone(), repo.clone());
     let mut comment_id: CommentId = 0u64.into();
     if new_commit {
         // Find the first "Hello, I am a [code review bot]" comment to update
@@ -130,7 +137,7 @@ async fn handler(
     }
     if comment_id == 0u64.into() { return; }
 
-    let pulls = octo.pulls(owner, repo);
+    let pulls = octo.pulls(owner.clone(), repo.clone());
     let patch_as_text = pulls.get_patch(pull_number).await.unwrap();
     let mut current_commit = String::new();
     let mut commits: Vec<String> = Vec::new();
@@ -162,8 +169,8 @@ async fn handler(
 
     let chat_id = format!("PR#{pull_number}");
     let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\".", title);
-    let mut openai = OpenAIFlows::new();
-    openai.set_retry_times(3);
+    let mut lf = LLMServiceFlows::new(&llm_api_endpoint);
+    lf.set_retry_times(3);
 
     let mut reviews: Vec<String> = Vec::new();
     let mut reviews_text = String::new();
@@ -171,12 +178,13 @@ async fn handler(
         let commit_hash = &commit[5..45];
         log::debug!("Sending patch to OpenAI: {}", commit_hash);
         let co = ChatOptions {
-            model: MODEL,
+            model: Some(&llm_model_name),
             restart: true,
             system_prompt: Some(system),
+            ..Default::default()
         };
         let question = "The following is a GitHub patch. Please summarize the key changes and identify potential problems. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
-        match openai.chat_completion(&chat_id, &question, &co).await {
+        match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
                 if reviews_text.len() < CHAR_SOFT_LIMIT {
                     reviews_text.push_str("------\n");
@@ -201,12 +209,13 @@ async fn handler(
     if reviews.len() > 1 {
         log::debug!("Sending all reviews to OpenAI for summarization");
         let co = ChatOptions {
-            model: MODEL,
+            model: Some(&llm_model_name),
             restart: true,
             system_prompt: Some(system),
+            ..Default::default()
         };
         let question = "Here is a set of summaries for software source code patches. Each summary starts with a ------ line. Please write an overall summary considering all the individual summary. Please present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        match openai.chat_completion(&chat_id, &question, &co).await {
+        match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
                 resp.push_str(&r.choice);
                 resp.push_str("\n\n## Details\n\n");
