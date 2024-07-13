@@ -31,40 +31,58 @@ This bot **summarizes commits in the PR**. Alternatively, you can use [this bot]
 
 ## How it works
 
-This flow function (or 🤖) will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and run in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
+This flow function will be triggered when a new PR is raised in the designated GitHub repo. The flow function collects the content in the PR, and asks ChatGPT/4 to review and summarize it. The result is then posted back to the PR as a comment. The flow functions are written in Rust and run in hosted [WasmEdge Runtimes](https://github.com/wasmedge) on [flows.network](https://flows.network/).
 
-* The code review comment is updated automatically every time a new commit is pushed to this PR.
-* A new code review could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
+* The PR summary comment is updated automatically every time a new commit is pushed to this PR.
+* A new summary could be triggered when someone says a magic *trigger phrase* in the PR's comments section. The default trigger phrase is "flows summarize".
 
-## Deploy your own code review bot in 2 simple steps
+## Deploy your own code review bot in 3 simple steps
 
-1. Create a bot from a template
-2. Configure the bot to review PRs on a specified GitHub repo
+1. Create a bot from your own GitHub repo
+2. Configure the bot to review PRs
+3. Connect to GitHub for access to the target repo
 
 ### 0 Prerequisites
 
 You will also need to sign into [flows.network](https://flows.network/) from your GitHub account. It is free.
 
-### 1 Create a bot from a template
+### 1 Create a bot from your own GitHub repo
 
-[**Just click here**](https://flows.network/flow/createByTemplate/Summarize-Pull-Request)
+Just fork this repo to your own GitHub account.
 
-Review the `trigger_phrase` variable. It is the magic words you type in a PR comment to manually summon the review bot.
+Then, from [flows.network](https://flows.network/), you can "Create a Flow" and select your forked repo.
+It will create a flow function based on the code in your forked repo.
 
-Click on the **Create and Build** button.
+Click on the "Advanced" button to see configuration options for the flow function.
 
-### 2 Configure the bot to access GitHub
+### 2 Configure the bot to review PRs
+
+<img src="https://raw.githubusercontent.com/flows-network/github-pr-summary/main/images/config.png" width="450"/>
 
 Next, you will tell the bot which GitHub repo it needs to monitor for upcoming PRs to review.
 
-* `github_owner`: GitHub org for the repo *you want to deploy the 🤖 on*.
-* `github_repo` : GitHub repo *you want to deploy the 🤖 on*.
+* `github_owner`: GitHub org for the repo *you want to review PRs*
+* `github_repo` : GitHub repo *you want to review PRs*
+* `trigger_phrase` : The magic words to write in a PR comment to summon the bot. It defaults to "flows summarize".
 
 > Let's see an example. You would like to deploy the bot to review code in PRs on `WasmEdge/wasmedge_hyper_demo` repo. Here `github_owner = WasmEdge` and `github_repo = wasmedge_hyper_demo`.
 
-Click on the **Connect** or **+ Add new authentication** button to give the function access to the GitHub repo to deploy the 🤖. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+And the LLM API service you want to use to review the PRs.
 
-[<img width="450" alt="image" src="https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473">](https://github.com/flows-network/github-pr-summary/assets/45785633/6cefff19-9eeb-4533-a20b-03c6a9c89473)
+* `llm_api_endpoint` : The OpenAI compatible API service endpoint for the LLM to conduct code reviews.
+* `llm_model_name` : The model name required by the API service.
+* `llm_api_key` : Optional: The API key if required by the LLM service provider.
+
+Click on the **Build** button.
+
+### 3 Connect to GitHub for access to the target repo
+
+Finally, the GitHub repo will need to give you access so that the flow function can
+access and review its PRs! In this next screen, you will connect to GitHub and authorize access.
+
+Click on the **Connect** or **+ Add new authentication** button to give the function access to the GitHub repo. You'll be redirected to a new page where you must grant [flows.network](https://flows.network/) permission to the repo.
+
+<img src="https://raw.githubusercontent.com/flows-network/github-pr-summary/main/images/github_integration.png" width="450"/>
 
 Close the tab and go back to the flow.network page once you are done. Click on **Deploy**.
 
@@ -72,7 +90,7 @@ Close the tab and go back to the flow.network page once you are done. Click on *
 
 This is it! You are now on the flow details page waiting for the flow function to build. As soon as the flow's status became `running`, the bot is ready to give code reviews! The bot is summoned by every new PR, every new commit, as well as magic words (i.e., `trigger_phrase`) in PR comments.
 
-[<img width="450" alt="image" src="https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png">](https://user-images.githubusercontent.com/45785633/229329247-16273aec-f89b-4375-bf2b-4ffce5e35a33.png)
+<img src="https://raw.githubusercontent.com/flows-network/github-pr-summary/main/images/success.png" width="450"/>
 
 ## FAQ
 

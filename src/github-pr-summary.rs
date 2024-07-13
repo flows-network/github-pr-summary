@@ -39,23 +39,9 @@ async fn handler(payload: EventPayload) {
     let owner = env::var("github_owner").unwrap_or("juntao".to_string());
     let repo = env::var("github_repo").unwrap_or("test".to_string());
     let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
-    let llm_api_endpoint = env::var("llm_api_endpoint").unwrap_or("https://codestral-01-22b.us.gaianet.network/v1".to_string());
-    let llm_model_name = env::var("llm_model_name").unwrap_or("Codestral-22B-v0.1-hf-Q5_K_M".to_string());
-
-    /*
-    if let EventPayload::IssueCommentEvent(e) = payload {
-        let comment_id = e.comment.id.0;
-
-        // installed app login
-        let octo = get_octo(&GithubLogin::Provided(String::from("some_login")));
-
-        let _reaction = octo
-            .issues("some_owner", "some_repo")
-            .create_comment_reaction(comment_id, ReactionContent::Rocket)
-            .await
-            .unwrap();
-    };
-    */
+    let llm_api_endpoint = env::var("llm_api_endpoint").unwrap_or("https://api.openai.com/v1".to_string());
+    let llm_model_name = env::var("llm_model_name").unwrap_or("gpt-4o".to_string());
+    let llm_api_key = env::var("llm_api_key").unwrap_or("LLAMAEDGE".to_string());
 
     let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
@@ -170,6 +156,7 @@ async fn handler(payload: EventPayload) {
     let chat_id = format!("PR#{pull_number}");
     let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\". Please be as concise as possible while being accurate.", title);
     let mut lf = LLMServiceFlows::new(&llm_api_endpoint);
+    lf.set_api_key(&llm_api_key);
     // lf.set_retry_times(3);
 
     let mut reviews: Vec<String> = Vec::new();
