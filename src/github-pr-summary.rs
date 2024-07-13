@@ -42,7 +42,6 @@ async fn handler(payload: EventPayload) {
     //  The soft character limit of the input context size
     //  This is measured in chars. We set it to be 2x llm_ctx_size, which is measured in tokens.
     let ctx_size_char : usize = (2 * llm_ctx_size).try_into().unwrap_or(0);
-    log::debug!("ctx_size_char={}", ctx_size_char);
 
     let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
@@ -155,7 +154,7 @@ async fn handler(payload: EventPayload) {
     }
 
     let chat_id = format!("PR#{pull_number}");
-    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\". Please be concise while being accurate.", title);
+    let system = &format!("You are an experienced software developer. You will act as a reviewer for a GitHub Pull Request titled \"{}\". Please be as concise as possible while being accurate.", title);
     let mut lf = LLMServiceFlows::new(&llm_api_endpoint);
     lf.set_api_key(&llm_api_key);
     // lf.set_retry_times(3);
@@ -173,10 +172,8 @@ async fn handler(payload: EventPayload) {
             ..Default::default()
         };
         let question = "The following is a GitHub patch. Please summarize the key changes in concise points. Start with the most important findings.\n\n".to_string() + truncate(commit, ctx_size_char);
-        log::debug!("LLM request: {}", &question);
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
-                log::debug!("LLM answer: {}", &r.choice);
                 if reviews_text.len() < ctx_size_char {
                     reviews_text.push_str("------\n");
                     reviews_text.push_str(&r.choice);
@@ -207,10 +204,8 @@ async fn handler(payload: EventPayload) {
             ..Default::default()
         };
         let question = "Here is a set of summaries for source code patches in this PR. Each summary starts with a ------ line. Write an overall summary. Present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
-        log::debug!("LLM request: {}", &question);
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
-                log::debug!("LLM answer: {}", &r.choice);
                 resp.push_str(&r.choice);
                 resp.push_str("\n\n## Details\n\n");
                 log::debug!("Received the overall summary");
