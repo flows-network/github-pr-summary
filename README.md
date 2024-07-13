@@ -71,6 +71,7 @@ And the LLM API service you want to use to review the PRs.
 
 * `llm_api_endpoint` : The OpenAI compatible API service endpoint for the LLM to conduct code reviews.
 * `llm_model_name` : The model name required by the API service.
+* `llm_ctx_size` : The context window size of the selected model.
 * `llm_api_key` : Optional: The API key if required by the LLM service provider.
 
 Click on the **Build** button.

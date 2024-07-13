@@ -2,7 +2,6 @@ use dotenv::dotenv;
 use flowsnet_platform_sdk::logger;
 use github_flows::{
     event_handler, get_octo, listen_to_event,
-    // octocrab::models::{events::payload::EventPayload, reactions::ReactionContent},
     octocrab::models::events::payload::{EventPayload, IssueCommentEventAction, PullRequestEventAction},
     octocrab::models::CommentId,
     GithubLogin,
@@ -12,10 +11,6 @@ use llmservice_flows::{
     LLMServiceFlows,
 };
 use std::env;
-
-//  The soft character limit of the input context size
-//  THe codestral has a context length of 16k tokens, and we allow 16k chars of context here
-static CHAR_SOFT_LIMIT : usize = 16384;
 
 #[no_mangle]
 #[tokio::main(flavor = "current_thread")]
@@ -41,7 +36,12 @@ async fn handler(payload: EventPayload) {
     let trigger_phrase = env::var("trigger_phrase").unwrap_or("flows summarize".to_string());
     let llm_api_endpoint = env::var("llm_api_endpoint").unwrap_or("https://api.openai.com/v1".to_string());
     let llm_model_name = env::var("llm_model_name").unwrap_or("gpt-4o".to_string());
+    let llm_ctx_size = env::var("llm_ctx_size").unwrap_or("16384".to_string()).parse::<u32>().unwrap_or(0);
     let llm_api_key = env::var("llm_api_key").unwrap_or("LLAMAEDGE".to_string());
+
+    //  The soft character limit of the input context size
+    //  This is measured in chars. We set it to be 2x llm_ctx_size, which is measured in tokens.
+    let ctx_size_char : usize = (2 * llm_ctx_size).try_into().unwrap_or(0);
 
     let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
@@ -137,8 +137,8 @@ async fn handler(payload: EventPayload) {
             // Start a new commit
             current_commit.clear();
         }
-        // Append the line to the current commit if the current commit is less than CHAR_SOFT_LIMIT
-        if current_commit.len() < CHAR_SOFT_LIMIT {
+        // Append the line to the current commit if the current commit is less than ctx_size_char
+        if current_commit.len() < ctx_size_char {
             current_commit.push_str(line);
             current_commit.push('\n');
         }
@@ -166,14 +166,15 @@ async fn handler(payload: EventPayload) {
         log::debug!("Sending patch to LLM: {}", commit_hash);
         let co = ChatOptions {
             model: Some(&llm_model_name),
+            token_limit: llm_ctx_size,
             restart: true,
             system_prompt: Some(system),
             ..Default::default()
         };
-        let question = "The following is a GitHub patch. Please summarize the key changes in concise points. Start with the most important findings.\n\n".to_string() + truncate(commit, CHAR_SOFT_LIMIT);
+        let question = "The following is a GitHub patch. Please summarize the key changes in concise points. Start with the most important findings.\n\n".to_string() + truncate(commit, ctx_size_char);
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
-                if reviews_text.len() < CHAR_SOFT_LIMIT {
+                if reviews_text.len() < ctx_size_char {
                     reviews_text.push_str("------\n");
                     reviews_text.push_str(&r.choice);
                     reviews_text.push_str("\n");
@@ -197,6 +198,7 @@ async fn handler(payload: EventPayload) {
         log::debug!("Sending all reviews to LLM for summarization");
         let co = ChatOptions {
             model: Some(&llm_model_name),
+            token_limit: llm_ctx_size,
             restart: true,
             system_prompt: Some(system),
             ..Default::default()
