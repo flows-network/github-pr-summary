@@ -42,6 +42,7 @@ async fn handler(payload: EventPayload) {
     //  The soft character limit of the input context size
     //  This is measured in chars. We set it to be 2x llm_ctx_size, which is measured in tokens.
     let ctx_size_char : usize = (2 * llm_ctx_size).try_into().unwrap_or(0);
+    log::debug!("ctx_size_char={}", ctx_size_char);
 
     let mut new_commit : bool = false;
     let (title, pull_number, _contributor) = match payload {
@@ -174,6 +175,7 @@ async fn handler(payload: EventPayload) {
         let question = "The following is a GitHub patch. Please summarize the key changes in concise points. Start with the most important findings.\n\n".to_string() + truncate(commit, ctx_size_char);
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
+                log::debug!("LLM answer: {}", &r.choice);
                 if reviews_text.len() < ctx_size_char {
                     reviews_text.push_str("------\n");
                     reviews_text.push_str(&r.choice);
@@ -206,6 +208,7 @@ async fn handler(payload: EventPayload) {
         let question = "Here is a set of summaries for source code patches in this PR. Each summary starts with a ------ line. Write an overall summary. Present the potential issues and errors first, following by the most important findings, in your summary.\n\n".to_string() + &reviews_text;
         match lf.chat_completion(&chat_id, &question, &co).await {
             Ok(r) => {
+                log::debug!("LLM answer: {}", &r.choice);
                 resp.push_str(&r.choice);
                 resp.push_str("\n\n## Details\n\n");
                 log::debug!("Received the overall summary");
