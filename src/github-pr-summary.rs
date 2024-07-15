@@ -22,7 +22,7 @@ pub async fn on_deploy() {
     let owner = env::var("github_owner").unwrap_or("juntao".to_string());
     let repo = env::var("github_repo").unwrap_or("test".to_string());
 
-    listen_to_event(&GithubLogin::Provided(owner.clone()), &owner, &repo, vec!["pull_request", "issue_comment"]).await;
+    listen_to_event(&GithubLogin::Default, &owner, &repo, vec!["pull_request", "issue_comment"]).await;
 }
 
 #[event_handler]
@@ -90,7 +90,7 @@ async fn handler(payload: EventPayload) {
         _ => return,
     };
 
-    let octo = get_octo(&GithubLogin::Provided(owner.clone()));
+    let octo = get_octo(&GithubLogin::Default);
     let issues = octo.issues(owner.clone(), repo.clone());
     let mut comment_id: CommentId = 0u64.into();
     if new_commit {
