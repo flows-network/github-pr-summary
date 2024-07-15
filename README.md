@@ -16,7 +16,9 @@
   </a>
 </p>
 
-[Deploy this function on flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps), and you will get a GitHub 🤖 to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
+[Deploy this function on flows.network](#deploy-your-own-code-review-bot-in-3-simple-steps), and you will get a GitHub agent to review and summarize Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! A few examples below!
+
+> We recommend you to use a [GaiaNet node](https://github.com/GaiaNet-AI/gaianet-node) running an open source coding LLM as the backend to perform PR reviews and summarizations. You can use [a community node](https://docs.gaianet.ai/user-guide/nodes#codestral-22b-v01) or run a node [on your own computer](https://github.com/GaiaNet-AI/node-configs/tree/main/codestral-0.1-22b)!
 
 * [[Rust] Improve support for host functions in the WasmEdge Rust SDK](https://github.com/WasmEdge/WasmEdge/pull/2394#issuecomment-1497819842)
 * [[bash] Support ARM architecture in the WasmEdge installer](https://github.com/WasmEdge/WasmEdge/pull/1084#issuecomment-1497830324)
@@ -67,10 +69,11 @@ Next, you will tell the bot which GitHub repo it needs to monitor for upcoming P
 
 And the LLM API service you want to use to review the PRs.
 
-* `llm_api_endpoint` : The OpenAI compatible API service endpoint for the LLM to conduct code reviews.
-* `llm_model_name` : The model name required by the API service.
-* `llm_ctx_size` : The context window size of the selected model.
-* `llm_api_key` : Optional: The API key if required by the LLM service provider.
+* `llm_api_endpoint` : The OpenAI compatible API service endpoint for the LLM to conduct code reviews. We recommend
+the [Codetral-0.1-22B GaiaNet node](https://github.com/GaiaNet-AI/node-configs/tree/main/codestral-0.1-22b): `https://codestral-01-22b.us.gaianet.network/v1`
+* `llm_model_name` : The model name required by the API service. We recommend the following model name for the above GaiaNet node: `Codestral-22B-v0.1-hf-Q5_K_M`
+* `llm_ctx_size` : The context window size of the selected model. The Codestral 0.1 model has a 16k context window, which is `16384`.
+* `llm_api_key` : Optional: The API key if required by the LLM service provider. It is not required for the GaiaNet node.
 
 Click on the **Build** button.
 
