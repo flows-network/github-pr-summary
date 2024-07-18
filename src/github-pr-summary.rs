@@ -2,8 +2,9 @@ use dotenv::dotenv;
 use flowsnet_platform_sdk::logger;
 use github_flows::{
     event_handler, get_octo, listen_to_event,
-    octocrab::models::events::payload::{EventPayload, IssueCommentEventAction, PullRequestEventAction},
     octocrab::models::CommentId,
+    octocrab::models::webhook_events::{WebhookEvent, WebhookEventPayload},
+    octocrab::models::webhook_events::payload::{IssueCommentWebhookEventAction, PullRequestWebhookEventAction},
     GithubLogin,
 };
 use llmservice_flows::{
@@ -26,7 +27,7 @@ pub async fn on_deploy() {
 }
 
 #[event_handler]
-async fn handler(payload: EventPayload) {
+async fn handler(event: Result<WebhookEvent, serde_json::Error>) {
     dotenv().ok();
     logger::init();
     log::debug!("Running github-pr-summary/main handler()");
@@ -43,12 +44,13 @@ async fn handler(payload: EventPayload) {
     //  This is measured in chars. We set it to be 2x llm_ctx_size, which is measured in tokens.
     let ctx_size_char : usize = (2 * llm_ctx_size).try_into().unwrap_or(0);
 
+    let payload = event.unwrap();
     let mut new_commit : bool = false;
-    let (title, pull_number, _contributor) = match payload {
-        EventPayload::PullRequestEvent(e) => {
-            if e.action == PullRequestEventAction::Opened {
+    let (title, pull_number, _contributor) = match payload.specific {
+        WebhookEventPayload::PullRequest(e) => {
+            if e.action == PullRequestWebhookEventAction::Opened {
                 log::debug!("Received payload: PR Opened");
-            } else if e.action == PullRequestEventAction::Synchronize {
+            } else if e.action == PullRequestWebhookEventAction::Synchronize {
                 new_commit = true;
                 log::debug!("Received payload: PR Synced");
             } else {
@@ -62,8 +64,8 @@ async fn handler(payload: EventPayload) {
                 p.user.unwrap().login,
             )
         }
-        EventPayload::IssueCommentEvent(e) => {
-            if e.action == IssueCommentEventAction::Deleted {
+        WebhookEventPayload::IssueComment(e) => {
+            if e.action == IssueCommentWebhookEventAction::Deleted {
                 log::debug!("Deleted issue comment");
                 return;
             }
@@ -75,7 +77,7 @@ async fn handler(payload: EventPayload) {
             //     return;
             // }
             // TODO: Makeshift but operational
-            if body.starts_with("Hello, I am a [PR summary bot]") {
+            if body.starts_with("Hello, I am a [PR summary agent]") {
                 log::info!("Ignore comment via bot");
                 return;
             };
@@ -85,6 +87,7 @@ async fn handler(payload: EventPayload) {
                 return;
             }
 
+            log::debug!("Will process comment event: {:?}", &body);
             (e.issue.title, e.issue.number, e.issue.user.login)
         }
         _ => return,
@@ -94,11 +97,11 @@ async fn handler(payload: EventPayload) {
     let issues = octo.issues(owner.clone(), repo.clone());
     let mut comment_id: CommentId = 0u64.into();
     if new_commit {
-        // Find the first "Hello, I am a [PR summary bot]" comment to update
+        // Find the first "Hello, I am a [PR summary agent]" comment to update
         match issues.list_comments(pull_number).send().await {
             Ok(comments) => {
                 for c in comments.items {
-                    if c.body.unwrap_or_default().starts_with("Hello, I am a [PR summary bot]") {
+                    if c.body.unwrap_or_default().starts_with("Hello, I am a [PR summary agent]") {
                         comment_id = c.id;
                         break;
                     }
@@ -111,7 +114,7 @@ async fn handler(payload: EventPayload) {
         }
     } else {
         // PR OPEN or Trigger phrase: create a new comment
-        match issues.create_comment(pull_number, "Hello, I am a [PR summary bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
+        match issues.create_comment(pull_number, "Hello, I am a [PR summary agent](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/).\n\nIt could take a few minutes for me to analyze this PR. Relax, grab a cup of coffee and check back later. Thanks!").await {
             Ok(comment) => {
                 comment_id = comment.id;
             }
@@ -193,7 +196,7 @@ async fn handler(payload: EventPayload) {
     }
 
     let mut resp = String::new();
-    resp.push_str("Hello, I am a [PR summary bot](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
+    resp.push_str("Hello, I am a [PR summary agent](https://github.com/flows-network/github-pr-summary/) on [flows.network](https://flows.network/). Here are my reviews of code commits in this PR.\n\n------\n\n");
     if reviews.len() > 1 {
         log::debug!("Sending all reviews to LLM for summarization");
         let co = ChatOptions {
