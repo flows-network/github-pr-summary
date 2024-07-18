@@ -82,12 +82,11 @@ async fn handler(event: Result<WebhookEvent, serde_json::Error>) {
                 return;
             };
 
-            if !body.to_lowercase().contains(&trigger_phrase.to_lowercase()) {
+            if !body.to_lowercase().starts_with(&trigger_phrase.to_lowercase()) {
                 log::info!("Ignore the comment without the magic words");
                 return;
             }
 
-            log::debug!("Will process comment event: {:?}", &body);
             (e.issue.title, e.issue.number, e.issue.user.login)
         }
         _ => return,
