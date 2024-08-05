@@ -16,7 +16,7 @@
   </a>
 </p>
 
-[Deploy this function on flows.network](), and you will get an AI agent to review and summarize GitHub Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! Here are some examples. Notice how the code review bot provides code snippets to show you how to improve the code!
+[Deploy this function on flows.network](https://flows.network/flow/createByTemplate/github-pr-summary-llm), and you will get an AI agent to review and summarize GitHub Pull Requests. It helps busy open source contributors understand and make decisions on PRs faster! Here are some examples. Notice how the code review bot provides code snippets to show you how to improve the code!
 
 > We recommend you to use a [Gaia node](https://github.com/GaiaNet-AI/gaianet-node) running an open source coding LLM as the backend to perform PR reviews and summarizations. You can use [a community node](https://docs.gaianet.ai/user-guide/nodes#codestral) or run a node [on your own computer](https://github.com/GaiaNet-AI/node-configs/tree/main/codestral-0.1-22b)!
 
@@ -48,7 +48,7 @@ You will also need to sign into [flows.network](https://flows.network/) from you
 
 ### 1 Create a bot from template
 
-Create a flow function from [this template]().
+Create a flow function from [this template](https://flows.network/flow/createByTemplate/github-pr-summary-llm).
 It will fork a repo into your personal GitHub account. Your flow function will be compiled from the source code
 in your forked repo. You can configure how it is summoned from the GitHub PR.
 
