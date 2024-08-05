@@ -22,7 +22,7 @@ anyhow = "1"
 flowsnet-platform-sdk = "0.1"
 lazy_static = "1.4.0"
 regex = "1.7.1"
-llmservice-flows = "0.2.0"
+llmservice-flows = "0.3.0"
 words-count = "0.1.4"
 log = "0.4"
 tokio = { version = "1", features = ["rt", "macros", "net", "time"] }
